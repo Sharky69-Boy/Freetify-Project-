@@ -3,1579 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Freetify - Advanced</title>
+    <title>Freetify - Feature Pack</title>
     <style>
         :root {
-            --primary-bg: #121212;
-            --secondary-bg: #181818;
-            --tertiary-bg: #282828;
-            --modal-bg: #2a2a2a;
-            --text-primary: #FFFFFF;
-            --text-secondary: #B3B3B3;
-            --accent-color: #1DB954; /* Spotify Green */
-            --danger-color: #e74c3c;
-            --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --primary-bg: #0a0a0a; --secondary-bg: #1c1c1c; --tertiary-bg: #2a2a2a; 
+            --modal-bg: #222222; --text-primary: #e0e0e0; --text-secondary: #a0a0a0;
+            --accent-color: #1DB954; --accent-hover: #1ed760; --danger-color: #f44336;
+            --warning-color: #ffa726; --info-color: #29b6f6; --border-color: #333333;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --border-radius-sm: 4px; --border-radius-md: 8px;
         }
-
-        body {
-            margin: 0;
-            font-family: var(--font-family);
-            background-color: var(--primary-bg);
-            color: var(--text-primary);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .container {
-            display: flex;
-            width: 100%;
-            height: calc(100% - 90px); /* Adjust for enhanced player bar */
-        }
-
-        .sidebar {
-            width: 240px;
-            background-color: #000000;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-
-        .sidebar .logo {
-            font-size: 2.2em;
-            font-weight: bold;
-            color: var(--accent-color);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .user-profile {
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: var(--secondary-bg);
-            border-radius: 5px;
-        }
-        .user-profile input[type="text"], .user-profile input[type="email"] {
-            width: calc(100% - 22px);
-            padding: 8px;
-            margin-bottom: 8px;
-            border-radius: 3px;
-            border: none;
-            background-color: var(--tertiary-bg);
-            color: var(--text-primary);
-        }
-        .user-profile button {
-            width: 100%;
-            padding: 8px;
-            background-color: var(--accent-color);
-            color: var(--text-primary);
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .user-profile p { font-size: 0.9em; margin-top: 10px; }
-        .user-profile .admin-badge { color: var(--accent-color); font-weight: bold; }
-
+        body { margin: 0; font-family: var(--font-family); background-color: var(--primary-bg); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; font-size: 15px; }
+        .container { display: flex; width: 100%; height: calc(100% - 90px); }
+        .sidebar { width: 250px; background-color: #000000; padding: 24px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; overflow-y: auto; border-right: 1px solid var(--border-color); }
+        .sidebar::-webkit-scrollbar { width: 8px; } .sidebar::-webkit-scrollbar-thumb { background-color: var(--tertiary-bg); border-radius: 4px; } .sidebar::-webkit-scrollbar-track { background-color: #000; }
+        .sidebar .logo { font-size: 2.4em; font-weight: 700; color: var(--accent-color); text-align: left; margin-bottom: 25px; }
+        .user-profile { margin-bottom: 25px; padding: 15px; background-color: var(--secondary-bg); border-radius: var(--border-radius-md); }
+        .user-profile label { font-size: 0.85em; color: var(--text-secondary); display: block; margin-bottom: 4px; }
+        .user-profile input[type="text"], .user-profile input[type="email"], .user-profile input[type="password"] { width: calc(100% - 20px); padding: 10px; margin-bottom: 10px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); background-color: var(--tertiary-bg); color: var(--text-primary); font-size: 0.95em; }
+        .user-profile button#setUserButton { width: 100%; padding: 10px; background-color: var(--accent-color); color: var(--text-primary); border: none; border-radius: var(--border-radius-sm); cursor: pointer; font-weight: 600; transition: background-color 0.2s ease; }
+        .user-profile button#setUserButton:hover { background-color: var(--accent-hover); }
+        .user-profile p { font-size: 0.9em; margin-top: 12px; } .user-profile .admin-badge { color: var(--accent-color); font-weight: bold; } .user-profile .auth-error { color: var(--danger-color); font-size: 0.85em; margin-top: 5px; }
+        .captcha-section { margin-top:10px; margin-bottom: 10px; } .captcha-section #captchaChallenge { font-weight: bold; margin-bottom: 5px; }
         .sidebar nav ul { list-style: none; padding: 0; margin: 0; }
-        .sidebar nav li {
-            padding: 12px 0;
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-weight: bold;
-            transition: color 0.2s;
-            display: flex;
-            align-items: center;
-        }
-        .sidebar nav li svg { margin-right: 10px; width: 20px; height: 20px; fill: currentColor; }
-        .sidebar nav li:hover, .sidebar nav li.active-nav { color: var(--text-primary); }
-        .sidebar nav li.sub-item { padding-left: 20px; font-weight: normal; }
-        .sidebar #playlists-nav-section h4 { margin: 15px 0 5px; color: var(--text-secondary); font-size: 0.9em;}
-        .sidebar #user-playlists-list li { font-weight: normal; font-size: 0.95em; padding-left: 10px; }
-
-
-        .main-content {
-            flex-grow: 1;
-            background: linear-gradient(to bottom, var(--tertiary-bg) 0%, var(--primary-bg) 300px);
-            padding: 20px;
-            overflow-y: auto;
-            height: 100%;
-            box-sizing: border-box;
-        }
-
-        .view { display: none; }
-        .view.active { display: block; }
-        .view h2 { border-bottom: 1px solid var(--secondary-bg); padding-bottom: 10px; margin-top: 0; }
-        .view h3 { margin-top: 30px; margin-bottom: 15px; }
-
-        .song-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 24px; /* Increased gap */
-        }
-
-        .song-card {
-            background-color: var(--secondary-bg);
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-        .song-card:hover { background-color: var(--tertiary-bg); }
-        .song-card img.cover {
-            width: 100%;
-            aspect-ratio: 1/1; /* Square covers */
-            object-fit: cover;
-            border-radius: 4px;
-            margin-bottom: 12px;
-        }
-        .song-card .song-name { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
-        .song-card .artist-name, .song-card .uploader-name, .song-card .song-plays, .song-card .song-likes, .song-card .song-album {
-            font-size: 0.85em; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
-        }
-        .song-card .privacy-status { font-size: 0.75em; color: var(--accent-color); position: absolute; top: 5px; left: 5px; background: rgba(0,0,0,0.5); padding: 2px 4px; border-radius: 3px;}
-
-        .song-card .actions-overlay {
-            position: absolute;
-            top: 0; right: 0; bottom: 0; left: 0;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.2s;
-            border-radius: 8px;
-        }
-        .song-card:hover .actions-overlay { opacity: 1; }
-        .song-card .actions-overlay button {
-            background: var(--accent-color); color: white; border: none;
-            padding: 8px 12px; margin: 5px; border-radius: 20px; cursor: pointer;
-            font-size: 0.9em;
-        }
-        .song-card .actions-overlay button.admin-action { background: var(--danger-color); }
-        .song-card .like-button-card { /* Renamed from like-button to avoid conflict */
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.8em; /* Larger heart */
-            cursor: pointer;
-            z-index: 5; /* Above overlay if needed */
-        }
-        .song-card .like-button-card.liked { color: var(--accent-color); }
-
-
-        .player-bar {
-            position: fixed;
-            bottom: 0; left: 0; width: 100%;
-            height: 90px; /* Increased height */
-            background-color: #181818; /* Darker than tertiary for distinction */
-            display: none; /* Initially hidden */
-            align-items: center;
-            padding: 0 20px;
-            box-sizing: border-box;
-            border-top: 1px solid #000;
-            justify-content: space-between;
-        }
-        .player-bar .player-info-left { display: flex; align-items: center; min-width: 200px;}
-        .player-bar #playerCover { width: 60px; height: 60px; object-fit: cover; margin-right: 15px; border-radius: 4px; }
-        .player-bar #playerName { margin: 0 0 5px 0; font-weight: bold; font-size: 0.9em; }
-        .player-bar #playerArtist { margin: 0; font-size: 0.8em; color: var(--text-secondary); }
-
-        .player-controls-center { display: flex; flex-direction: column; align-items: center; flex-grow: 1; max-width: 600px; }
-        .player-controls-center .buttons { margin-bottom: 8px; }
-        .player-controls-center button { background: none; border: none; color: var(--text-secondary); font-size: 1.5em; cursor: pointer; margin: 0 10px; }
-        .player-controls-center button:hover { color: var(--text-primary); }
-        .player-controls-center .progress-container { display: flex; align-items: center; width: 100%; }
-        .player-controls-center #currentTime { font-size: 0.8em; margin-right: 10px; }
-        .player-controls-center #seekBar { flex-grow: 1; height: 4px; -webkit-appearance: none; appearance: none; background: #404040; border-radius: 2px; cursor: pointer; }
-        .player-controls-center #seekBar::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; background: var(--text-primary); border-radius: 50%; cursor: pointer; }
-        .player-controls-center #totalTime { font-size: 0.8em; margin-left: 10px; }
-        
-        .player-controls-right { display: flex; align-items: center; min-width: 150px; justify-content: flex-end;}
-        .player-controls-right #volumeIcon { margin-right: 8px; }
-        .player-controls-right #volumeBar { width: 100px; height: 4px; -webkit-appearance: none; appearance: none; background: #404040; border-radius: 2px; cursor: pointer; }
-        .player-controls-right #volumeBar::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; background: var(--text-primary); border-radius: 50%; cursor: pointer; }
-
-
-        /* Upload, Search, Modals */
-        #uploadForm div, .search-controls div, .modal-content div { margin-bottom: 15px; }
-        #uploadForm label, .search-controls label, .modal-content label { display: block; margin-bottom: 5px; color: var(--text-secondary); }
-        #uploadForm input[type="text"], #uploadForm input[type="file"], #uploadForm select,
-        .search-controls input[type="text"], .search-controls select,
-        .modal-content input[type="text"], .modal-content select, .modal-content textarea {
-            width: 100%; padding: 10px; background-color: var(--tertiary-bg);
-            border: 1px solid var(--secondary-bg); border-radius: 4px; color: var(--text-primary); box-sizing: border-box;
-        }
-        #uploadForm button, .search-controls button, .modal-content button {
-            padding: 10px 20px; background-color: var(--accent-color); color: var(--text-primary);
-            border: none; border-radius: 20px; cursor: pointer; font-weight: bold;
-        }
-        #uploadForm button:hover, .search-controls button:hover, .modal-content button:hover { opacity: 0.9; }
-        .error-message { color: #ff6b6b; font-size: 0.9em; }
-        #coverPreview { max-width: 100px; max-height: 100px; margin-top: 10px; border-radius: 4px; }
-        .search-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; }
-        .search-controls input[type="text"], .search-controls select { width: auto; flex-grow: 1; }
-        .search-controls #filterValueInput { flex-grow: 2; }
-
-        /* Modal Styles */
-        .modal {
-            display: none; position: fixed; z-index: 100; left: 0; top: 0;
-            width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6);
-            align-items: center; justify-content: center;
-        }
-        .modal-content {
-            background-color: var(--modal-bg); margin: auto; padding: 25px;
-            border: 1px solid var(--tertiary-bg); width: 80%; max-width: 500px;
-            border-radius: 8px; position: relative;
-        }
-        .modal-content h3 { margin-top: 0; }
-        .close-button {
-            color: var(--text-secondary); position: absolute; top: 15px; right: 20px;
-            font-size: 28px; font-weight: bold; cursor: pointer;
-        }
-        .close-button:hover, .close-button:focus { color: var(--text-primary); text-decoration: none; }
-
-        /* Song Detail Modal & Comments */
-        #songDetailModal .song-detail-info { display: flex; margin-bottom: 20px; }
-        #songDetailModal #detailCover { width: 150px; height: 150px; object-fit: cover; border-radius: 6px; margin-right: 20px; }
-        #songDetailModal .info-text p { margin: 5px 0; }
-        #songDetailModal .info-text .detail-name { font-size: 1.5em; font-weight: bold; }
-        #songDetailModal .info-text .detail-artist { font-size: 1.1em; color: var(--text-secondary); }
-        
-        .comments-section { margin-top: 20px; }
-        .comments-section h4 { margin-bottom: 10px; }
-        #commentsList .comment {
-            background-color: var(--tertiary-bg); padding: 10px; border-radius: 5px; margin-bottom: 8px;
-            font-size: 0.9em;
-        }
-        #commentsList .comment-user { font-weight: bold; color: var(--accent-color); margin-right: 8px; }
-        #commentsList .comment-time { font-size: 0.8em; color: var(--text-secondary); }
-        #commentsList .comment-text { margin-top: 4px; }
-        #commentForm textarea { height: 60px; margin-bottom: 10px; }
-
-        /* Playlist specific */
-        #createPlaylistInput { margin-bottom: 10px; }
-        .playlist-card {
-            background-color: var(--secondary-bg); padding: 15px; border-radius: 8px;
-            cursor: pointer; transition: background-color 0.2s;
-        }
-        .playlist-card:hover { background-color: var(--tertiary-bg); }
-        .playlist-card h4 { margin-top:0; }
-        .playlist-card p { font-size: 0.9em; color: var(--text-secondary); }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container { flex-direction: column; height: calc(100% - 70px); /* Player bar might be smaller on mobile */ }
-            .sidebar { width: 100%; height: auto; max-height: 40vh; overflow-y: auto; padding: 10px; }
-            .main-content { padding: 15px; }
-            .song-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-            .player-bar { flex-direction: column; height: auto; padding: 10px; }
-            .player-info-left { margin-bottom: 10px; width: 100%; justify-content: center; text-align: center; }
-            .player-controls-center { width: 100%; }
-            .player-controls-right { width: 100%; justify-content: center; margin-top: 10px; }
-            .search-controls { flex-direction: column; }
-            .search-controls input[type="text"], .search-controls select { width: 100%; }
-            .modal-content { width: 90%; }
-        }
-
+        .sidebar nav li { padding: 14px 10px; cursor: pointer; color: var(--text-secondary); font-weight: 500; transition: color 0.2s ease, background-color 0.2s ease; display: flex; align-items: center; border-radius: var(--border-radius-sm); margin-bottom: 4px; }
+        .sidebar nav li svg { margin-right: 12px; width: 22px; height: 22px; fill: currentColor; }
+        .sidebar nav li:hover { color: var(--text-primary); background-color: var(--tertiary-bg); }
+        .sidebar nav li.active-nav { color: var(--text-primary); background-color: var(--accent-color); } .sidebar nav li.active-nav svg { fill: var(--text-primary); }
+        .sidebar nav li.sub-item { padding-left: 30px; font-weight: normal; }
+        .sidebar #playlists-nav-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+        .sidebar #playlists-nav-section h4 { margin: 0 0 12px 0; color: var(--text-secondary); font-size: 0.75em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; padding-left: 5px; }
+        .sidebar #createPlaylistInput { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); background-color: var(--tertiary-bg); color: var(--text-primary); font-size: 0.9em; box-sizing: border-box; }
+        .sidebar #createPlaylistInput::placeholder { color: var(--text-secondary); opacity: 0.7; }
+        /* .sidebar #createPlaylistButton uses .action-button now */
+        .sidebar #user-playlists-list { list-style: none; padding: 0; margin: 0; }
+        .sidebar #user-playlists-list li { font-weight: 400; font-size: 0.92em; padding: 10px 12px; border-radius: var(--border-radius-sm); margin-bottom: 3px; color: var(--text-secondary); cursor: pointer; transition: color 0.2s ease, background-color 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; justify-content: space-between; align-items: center; }
+        .sidebar #user-playlists-list li:hover { color: var(--text-primary); background-color: var(--tertiary-bg); } .sidebar #user-playlists-list li.active-playlist-nav { color: var(--accent-color); font-weight: 500; }
+        .sidebar #user-playlists-list li .playlist-actions button { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 2px 4px; margin-left: 5px; font-size: 0.9em; opacity: 0.6; transition: opacity 0.2s, color 0.2s; }
+        .sidebar #user-playlists-list li:hover .playlist-actions button { opacity: 1; } .sidebar #user-playlists-list li .playlist-actions button:hover { color: var(--text-primary); } .sidebar #user-playlists-list li .playlist-actions button.delete:hover { color: var(--danger-color); }
+        .main-content { flex-grow: 1; background: linear-gradient(to bottom, rgba(40,40,40,0.5) 0%, var(--primary-bg) 350px); padding: 25px 30px; overflow-y: auto; height: 100%; box-sizing: border-box; }
+        .main-content::-webkit-scrollbar { width: 8px; } .main-content::-webkit-scrollbar-thumb { background-color: var(--tertiary-bg); border-radius: 4px;} .main-content::-webkit-scrollbar-track { background-color: var(--primary-bg); }
+        .view { display: none; } .view.active { display: block; }
+        .view-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px; }
+        .view-header h2 { margin:0; font-size: 1.8em; font-weight: 600; }
+        .view-header .view-actions { display: flex; gap: 10px; }
+        .view h3 { margin-top: 35px; margin-bottom: 20px; font-size: 1.4em; font-weight: 500;}
+        .action-button { padding: 10px 18px; background-color: var(--accent-color); color: var(--text-primary); border: none; border-radius: var(--border-radius-sm); cursor: pointer; font-weight: 600; font-size: 0.9em; transition: background-color 0.2s ease; display: inline-flex; align-items: center; gap: 8px; }
+        .action-button:hover { background-color: var(--accent-hover); } .action-button svg { width: 16px; height: 16px; fill: currentColor; }
+        .secondary-action-button { padding: 8px 14px; background-color: var(--tertiary-bg); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); cursor: pointer; font-weight: 500; font-size: 0.85em; transition: background-color 0.2s ease, color 0.2s ease; display: inline-flex; align-items: center; gap: 8px; }
+        .secondary-action-button:hover { background-color: var(--secondary-bg); color: var(--text-primary); } .secondary-action-button svg { width: 15px; height: 15px; fill: currentColor; }
+        .sort-controls { margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .sort-controls label { font-size: 0.9em; color: var(--text-secondary); }
+        .sort-controls select { padding: 8px 12px; background-color: var(--secondary-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); color: var(--text-primary); font-size: 0.9em; }
+        .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 28px; }
+        .song-card { background-color: var(--secondary-bg); padding: 18px; border-radius: var(--border-radius-md); cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; position: relative; display: flex; flex-direction: column; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .song-card:hover { background-color: var(--tertiary-bg); transform: translateY(-3px); }
+        .song-card img.cover { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: var(--border-radius-sm); margin-bottom: 15px; }
+        .song-card .song-name { font-weight: 600; font-size: 1.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; }
+        .song-card .artist-name, .song-card .song-album { font-size: 0.88em; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+        .song-card .stats-line { display: flex; justify-content: space-between; font-size: 0.8em; color: var(--text-secondary); margin-top: 5px; }
+        .song-card .privacy-status { font-size: 0.7em; color: var(--accent-color); position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); padding: 3px 6px; border-radius: var(--border-radius-sm); }
+        .song-card .actions-overlay { position: absolute; top:0;right:0;bottom:0;left:0; background:rgba(0,0,0,0.6); display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:opacity .2s ease, visibility .2s ease; border-radius:var(--border-radius-md); }
+        .song-card:hover .actions-overlay { opacity:1; visibility:visible; }
+        .song-card .actions-overlay button { background:var(--accent-color); color:white; border:none; padding:8px 12px; margin:5px; border-radius:20px; cursor:pointer; font-size:.85em; font-weight:500; transition:background-color .2s ease; display:flex; align-items:center; gap:5px; }
+        .song-card .actions-overlay button:hover { background-color:var(--accent-hover); } .song-card .actions-overlay button.admin-action { background:var(--danger-color); } .song-card .actions-overlay button.admin-action:hover { background:#d32f2f; } .song-card .actions-overlay button svg { width:14px; height:14px; fill:currentColor; }
+        .song-card .like-button-card { position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.3); border:none; color:var(--text-secondary); font-size:1.6em; cursor:pointer; z-index:5; border-radius:50%; padding:4px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; transition:color .2s ease, transform .2s ease; }
+        .song-card .like-button-card:hover { color:var(--text-primary); transform:scale(1.1); } .song-card .like-button-card.liked { color:var(--accent-color); }
+        .player-bar { position:fixed; bottom:0; left:0; width:100%; height:90px; background-color:#111; display:none; align-items:center; padding:0 25px; box-sizing:border-box; border-top:1px solid var(--border-color); justify-content:space-between; }
+        .player-bar .player-info-left{display:flex;align-items:center;min-width:220px;}.player-bar #playerCover{width:60px;height:60px;object-fit:cover;margin-right:15px;border-radius:var(--border-radius-sm);}.player-bar #playerName{margin:0 0 5px 0;font-weight:600;font-size:.95em;}.player-bar #playerArtist{margin:0;font-size:.85em;color:var(--text-secondary);}
+        .player-controls-center{display:flex;flex-direction:column;align-items:center;flex-grow:1;max-width:600px;}.player-controls-center .buttons{margin-bottom:8px;}.player-controls-center button{background:none;border:none;color:var(--text-secondary);font-size:1.6em;cursor:pointer;margin:0 12px;transition:color .2s ease;}.player-controls-center button:hover{color:var(--text-primary);}.player-controls-center .progress-container{display:flex;align-items:center;width:100%;}.player-controls-center #currentTime,.player-controls-center #totalTime{font-size:.85em;color:var(--text-secondary);}.player-controls-center #currentTime{margin-right:10px;}.player-controls-center #totalTime{margin-left:10px;}.player-controls-center #seekBar{flex-grow:1;height:5px;-webkit-appearance:none;appearance:none;background:#444;border-radius:3px;cursor:pointer;}.player-controls-center #seekBar::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;background:var(--text-primary);border-radius:50%;cursor:pointer;box-shadow:0 0 5px rgba(255,255,255,0.3);}.player-controls-center #seekBar::-moz-range-thumb{width:14px;height:14px;background:var(--text-primary);border-radius:50%;cursor:pointer;border:none;box-shadow:0 0 5px rgba(255,255,255,0.3);}
+        .player-controls-right{display:flex;align-items:center;min-width:160px;justify-content:flex-end;}.player-controls-right #volumeIcon{margin-right:10px;fill:var(--text-secondary);transition:fill .2s ease;cursor:pointer;}.player-controls-right #volumeIcon:hover{fill:var(--text-primary);}.player-controls-right #volumeBar{width:100px;height:5px;-webkit-appearance:none;appearance:none;background:#444;border-radius:3px;cursor:pointer;}.player-controls-right #volumeBar::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;background:var(--text-primary);border-radius:50%;cursor:pointer;}.player-controls-right #volumeBar::-moz-range-thumb{width:14px;height:14px;background:var(--text-primary);border-radius:50%;cursor:pointer;border:none;}
+        .form-section div:not(.stats-line):not(.view-actions):not(.sort-controls){margin-bottom:18px;} .form-section label{display:block;margin-bottom:6px;color:var(--text-secondary);font-size:.9em;} .form-section input[type="text"],.form-section input[type="file"],.form-section select,.form-section textarea{width:100%;padding:12px;background-color:var(--secondary-bg);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);box-sizing:border-box;font-size:.95em;} .form-section input[type="file"]{background-color:var(--tertiary-bg);}
+        .error-message{color:var(--danger-color);font-size:.9em;margin-top:5px;} #coverPreview{max-width:120px;max-height:120px;margin-top:10px;border-radius:var(--border-radius-sm);border:1px solid var(--border-color);}
+        .search-controls{display:flex;flex-wrap:wrap;gap:15px;align-items:center;margin-bottom:25px;} .search-controls input[type="text"],.search-controls select{padding:12px;background-color:var(--secondary-bg);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-size:.95em;width:auto;flex-grow:1;} .search-controls #filterValueInput{flex-grow:2;}
+        .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,0.75);align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+        .modal-content{background-color:var(--modal-bg);margin:auto;padding:30px;border:1px solid var(--border-color);width:90%;max-width:550px;border-radius:var(--border-radius-md);position:relative;box-shadow:0 5px 25px rgba(0,0,0,0.3);} .modal-content h3{margin-top:0;margin-bottom:20px;font-size:1.5em;} .close-button{color:var(--text-secondary);position:absolute;top:15px;right:20px;font-size:30px;font-weight:bold;cursor:pointer;transition:color .2s ease;background:none!important;padding:0!important;} .close-button:hover,.close-button:focus{color:var(--text-primary);}
+        #songDetailModal .song-detail-info{display:flex;margin-bottom:25px;gap:25px;} #songDetailModal #detailCover{width:160px;height:160px;object-fit:cover;border-radius:var(--border-radius-sm);} #songDetailModal .info-text p{margin:6px 0;font-size:.95em;} #songDetailModal .info-text .detail-name{font-size:1.6em;font-weight:600;margin-bottom:8px;} #songDetailModal .info-text .detail-artist{font-size:1.15em;color:var(--text-secondary);} #songDetailModal .info-text .detail-duration, #songDetailModal .info-text .detail-uploaded{font-size:0.9em; color: var(--text-secondary);}
+        .comments-section{margin-top:25px;} .comments-section h4{margin-bottom:15px;font-size:1.2em;} #commentsList{max-height:220px;overflow-y:auto;padding-right:10px;} #commentsList::-webkit-scrollbar{width:6px;} #commentsList::-webkit-scrollbar-thumb{background-color:var(--tertiary-bg);border-radius:3px;} #commentsList::-webkit-scrollbar-track{background-color:var(--secondary-bg);} #commentsList .comment{background-color:var(--secondary-bg);padding:12px;border-radius:var(--border-radius-sm);margin-bottom:10px;font-size:.9em;border-left:3px solid var(--accent-color);} #commentsList .comment-user{font-weight:600;color:var(--accent-color);margin-right:8px;} #commentsList .comment-time{font-size:.8em;color:var(--text-secondary);} #commentsList .comment-text{margin-top:5px;line-height:1.5;} #commentForm textarea{height:70px;margin-bottom:10px;}
+        .playlist-card{background-color:var(--secondary-bg);padding:20px;border-radius:var(--border-radius-md);cursor:pointer;transition:background-color .2s ease,transform .2s ease;box-shadow:0 2px 8px rgba(0,0,0,0.15);display:flex;flex-direction:column;} .playlist-card:hover{background-color:var(--tertiary-bg);transform:translateY(-2px);} .playlist-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;} .playlist-card-header h4{margin:0;font-size:1.1em;font-weight:600;flex-grow:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .playlist-card-actions button{background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.1em;padding:3px;opacity:.7;transition:opacity .2s,color .2s;} .playlist-card:hover .playlist-card-actions button{opacity:1;} .playlist-card-actions button:hover{color:var(--text-primary);} .playlist-card-actions button.delete:hover{color:var(--danger-color);} .playlist-card p.song-count{font-size:.9em;color:var(--text-secondary);margin:0;}
+        #queueModal .modal-content{max-width:600px;} #queueList,.#mainQueueList{list-style:none;padding:0;max-height:40vh;overflow-y:auto;margin-bottom:15px;} #queueList::-webkit-scrollbar,#mainQueueList::-webkit-scrollbar{width:6px;} #queueList::-webkit-scrollbar-thumb,#mainQueueList::-webkit-scrollbar-thumb{background-color:var(--tertiary-bg);border-radius:3px;} #queueList li,.#mainQueueList li{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid var(--border-color);font-size:.95em;} #queueList li:last-child,.#mainQueueList li:last-child{border-bottom:none;} #queueList .queued-song-info,.#mainQueueList .queued-song-info{flex-grow:1;} #queueList .queued-song-name,.#mainQueueList .queued-song-name{font-weight:500;} #queueList .queued-song-artist,.#mainQueueList .queued-song-artist{font-size:.9em;color:var(--text-secondary);} #queueList .remove-from-queue-btn,.#mainQueueList .remove-from-queue-btn{background:none;border:none;color:var(--danger-color);font-size:1.2em;cursor:pointer;padding:5px;opacity:.7;transition:opacity .2s;} #queueList .remove-from-queue-btn:hover,.#mainQueueList .remove-from-queue-btn:hover{opacity:1;} .queue-actions{display:flex;justify-content:flex-end;gap:10px;}
+        #admin-view .admin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;} #admin-view .stat-card{background-color:var(--secondary-bg);padding:20px;border-radius:var(--border-radius-md);text-align:center;} #admin-view .stat-card h4{margin-top:0;margin-bottom:10px;font-size:1.1em;color:var(--text-secondary);} #admin-view .stat-card p{font-size:1.8em;font-weight:600;margin:0;color:var(--accent-color);} #admin-view .user-list-table{width:100%;border-collapse:collapse;margin-top:20px;} #admin-view .user-list-table th,#admin-view .user-list-table td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border-color);} #admin-view .user-list-table th{background-color:var(--tertiary-bg);font-weight:600;}
+        @media (max-width:768px){.container{flex-direction:column;height:calc(100% - 70px);}.sidebar{width:100%;height:auto;max-height:45vh;}.main-content{padding:20px 15px;}.song-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:20px;}.player-bar{flex-direction:column;height:auto;padding:15px;}.player-info-left{margin-bottom:12px;width:100%;justify-content:center;text-align:center;}.player-controls-center{width:100%;}.player-controls-right{width:100%;justify-content:center;margin-top:12px;}.search-controls{flex-direction:column;gap:12px;}.search-controls input[type="text"],.search-controls select{width:100%;}.modal-content{width:95%;padding:20px;}}
     </style>
 </head>
 <body>
     <div class="container">
         <aside class="sidebar">
             <h1 class="logo">Freetify</h1>
-            <div class="user-profile">
-                <input type="text" id="usernameInput" placeholder="Username">
-                <input type="email" id="emailInput" placeholder="Email">
-                <button id="setUserButton">Set/Login User</button>
-                <p>User: <span id="currentUserDisplay">None</span> <span id="adminBadge" class="admin-badge" style="display:none;">(Admin)</span></p>
-            </div>
+            <div class="user-profile"> <label for="usernameInput">Username</label> <input type="text" id="usernameInput" placeholder="Your username"> <label for="emailInput">Email</label> <input type="email" id="emailInput" placeholder="Your email"> <label for="passwordInput">Password</label> <input type="password" id="passwordInput" placeholder="Enter password"> <div class="captcha-section"> <label for="captchaInput">CAPTCHA</label> <div id="captchaChallenge"></div> <input type="text" id="captchaInput" placeholder="Enter CAPTCHA result"> </div> <div id="authError" class="auth-error"></div> <button id="setUserButton">Login / Register</button> <p>User: <span id="currentUserDisplay">None</span> <span id="adminBadge" class="admin-badge" style="display:none;">(Admin)</span></p> <small style="color: var(--warning-color); display: block; margin-top: 10px; font-size: 0.8em; line-height: 1.3;"> <strong>Warning:</strong> Passwords & CAPTCHA are for demo and NOT secure. Do not use real passwords. </small> </div>
             <nav>
                 <ul>
-                    <li data-view="home" class="active-nav">
-                        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home
-                    </li>
-                    <li data-view="search">
-                        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>Search
-                    </li>
-                    <li data-view="library">
-                        <svg viewBox="0 0 24 24"><path d="M2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2zm18-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H8V8h4V4h2v4h4v2z"/></svg>Library
-                    </li>
-                    <li data-view="upload" class="sub-item">
-                        <svg viewBox="0 0 24 24" style="margin-left:15px;"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>Upload Song
-                    </li>
+                    <li data-view="home" class="active-nav"> <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home </li>
+                    <li data-view="search"> <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>Search </li>
+                    <li data-view="library"> <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H8V8h4V4h2v4h4v2z"/></svg>Library </li>
+                    <li data-view="queue"> <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>Queue (<span id="queueCount">0</span>)</li>
+                    <li data-view="upload" class="sub-item"> <svg viewBox="0 0 24 24" style="margin-left:15px;"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>Upload Song </li>
+                    <li data-view="admin" id="adminNav" style="display:none;"> <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"></path></svg>Admin Panel </li>
                 </ul>
-                <div id="playlists-nav-section">
-                    <h4>PLAYLISTS</h4>
-                    <input type="text" id="createPlaylistInput" placeholder="New Playlist Name" style="width: calc(100% - 22px); padding: 6px; font-size:0.9em; margin-bottom:5px;">
-                    <button id="createPlaylistButton" style="width:100%; font-size:0.9em; padding: 6px;">Create Playlist</button>
-                    <ul id="user-playlists-list">
-                        <!-- User playlists will be listed here -->
-                    </ul>
-                </div>
+                <div id="playlists-nav-section"> <h4>PLAYLISTS</h4> <input type="text" id="createPlaylistInput" placeholder="New Playlist Name"> <button id="createPlaylistButton" class="action-button">Create Playlist</button> <ul id="user-playlists-list"></ul> </div>
             </nav>
         </aside>
-
         <main class="main-content">
-            <section id="home-view" class="view active">
-                <h2>Home</h2>
-                <div id="recently-played-section">
-                    <h3>Recently Played By You</h3>
-                    <div class="song-grid" id="recently-played-grid"><p>Play some songs to see them here!</p></div>
-                </div>
-                <div id="recently-uploaded-section">
-                    <h3>Recently Uploaded</h3>
-                    <div class="song-grid" id="recently-uploaded-grid"><p>No songs uploaded yet.</p></div>
-                </div>
-                <div id="most-played-section">
-                    <h3>Most Plays</h3>
-                    <div class="song-grid" id="most-played-grid"><p>No songs played yet.</p></div>
-                </div>
-                 <div id="most-liked-section">
-                    <h3>Most Likes</h3>
-                    <div class="song-grid" id="most-liked-grid"><p>No songs liked yet.</p></div>
-                </div>
-            </section>
-
-            <section id="search-view" class="view">
-                <h2>Search Songs</h2>
-                <div class="search-controls">
-                    <input type="text" id="searchInput" placeholder="Search songs, artists, albums...">
-                    <select id="filterType">
-                        <option value="all">All Fields</option>
-                        <option value="recent">Most Recent</option>
-                        <option value="uploader">By Uploader</option>
-                        <option value="artist">By Artist</option>
-                        <option value="album">By Album</option>
-                        <option value="category">By Category</option>
-                        <option value="most_played">Most Played</option>
-                        <option value="most_liked">Most Liked</option>
-                    </select>
-                    <input type="text" id="filterValueInput" placeholder="Enter filter value" style="display: none;">
-                    <button id="searchButton">Search</button>
-                </div>
-                <div class="song-grid" id="search-results-grid"><p>Enter search term and click Search.</p></div>
-            </section>
-
-            <section id="library-view" class="view">
-                <h2>My Library</h2>
-                 <div id="my-uploads-section">
-                    <h3>My Uploads</h3>
-                    <div class="song-grid" id="my-uploads-grid"><p>You haven't uploaded any songs.</p></div>
-                </div>
-                <div id="my-liked-songs-section">
-                    <h3>My Liked Songs</h3>
-                    <div class="song-grid" id="my-liked-songs-grid"><p>You haven't liked any songs.</p></div>
-                </div>
-                <div id="my-playlists-section">
-                    <h3>My Playlists</h3>
-                    <div id="my-playlists-grid" class="song-grid"> <!-- Re-using song-grid for layout -->
-                        <p>You haven't created any playlists.</p>
-                    </div>
-                </div>
-            </section>
-            
-            <section id="playlist-detail-view" class="view">
-                <h2 id="playlistDetailName">Playlist: </h2>
-                <button id="backToLibraryButton" style="margin-bottom:15px;">&larr; Back to Library</button>
-                <div class="song-grid" id="playlist-songs-grid"><p>This playlist is empty.</p></div>
-            </section>
-
-            <section id="upload-view" class="view">
-                <h2>Upload Song</h2>
-                <form id="uploadForm">
-                    <div>
-                        <label for="songFile">Song (MP3/OGG, <10min):</label>
-                        <input type="file" id="songFile" accept=".mp3,.ogg" required>
-                        <small id="songFileError" class="error-message"></small>
-                    </div>
-                    <div><label for="songName">Song Name:</label><input type="text" id="songName" required></div>
-                    <div><label for="artistName">Artist Name:</label><input type="text" id="artistName" required></div>
-                    <div>
-                        <label for="coverFile">Cover (PNG/JPG/JPEG):</label>
-                        <input type="file" id="coverFile" accept=".png,.jpg,.jpeg" required>
-                        <img id="coverPreview" src="#" alt="Cover Preview" style="display: none;">
-                    </div>
-                    <div>
-                        <label for="category">Category:</label>
-                        <select id="category">
-                            <option value="Hip Hop">Hip Hop</option> <option value="Dance">Dance</option> <option value="EDM">EDM</option>
-                            <option value="Dubstep">Dubstep</option> <option value="Phonk">Phonk</option> <option value="Rock">Rock</option>
-                            <option value="Pop">Pop</option> <option value="Classical">Classical</option> <option value="Jazz">Jazz</option>
-                            <option value="Other" selected>Other</option>
-                        </select>
-                    </div>
-                    <div><label for="albumName">Album Name (optional):</label><input type="text" id="albumName" placeholder="No Album"></div>
-                    <button type="submit">Upload Song</button>
-                </form>
-            </section>
+            <section id="home-view" class="view active"> <div class="view-header"><h2>Home</h2></div> <div id="recently-played-section"><h3>Recently Played By You</h3><div class="song-grid" id="recently-played-grid"></div></div> <div id="recently-uploaded-section"><h3>Recently Uploaded</h3><div class="song-grid" id="recently-uploaded-grid"></div></div> <div id="most-played-section"><h3>Most Plays</h3><div class="song-grid" id="most-played-grid"></div></div> <div id="most-liked-section"><h3>Most Likes</h3><div class="song-grid" id="most-liked-grid"></div></div> </section>
+            <section id="search-view" class="view"> <div class="view-header"><h2>Search Songs</h2></div> <div class="search-controls"> <input type="text" id="searchInput" placeholder="Search songs, artists, albums..."> <select id="filterType"> <option value="all">All Fields</option><option value="recent">Most Recent</option> <option value="uploader">By Uploader</option><option value="artist">By Artist</option> <option value="album">By Album</option><option value="category">By Category</option> <option value="most_played">Most Played</option><option value="most_liked">Most Liked</option> </select> <input type="text" id="filterValueInput" placeholder="Enter filter value" style="display: none;"> <button id="searchButton" class="action-button">Search</button> </div> <div class="song-grid" id="search-results-grid"></div> </section>
+            <section id="library-view" class="view"> <div class="view-header"><h2>My Library</h2></div> <div id="my-uploads-section"> <div style="display:flex; justify-content:space-between; align-items:center;"><h3>My Uploads</h3> <div class="sort-controls" id="myUploadsSortControls"> <label for="sortMyUploads">Sort by:</label> <select id="sortMyUploads"> <option value="date_desc">Date Added (Newest)</option> <option value="date_asc">Date Added (Oldest)</option> <option value="name_asc">Name (A-Z)</option> <option value="name_desc">Name (Z-A)</option> </select> </div> </div> <div class="song-grid" id="my-uploads-grid"></div> </div> <div id="my-liked-songs-section"><h3>My Liked Songs</h3><div class="song-grid" id="my-liked-songs-grid"></div></div> <div id="my-playlists-section"><h3>My Playlists</h3><div id="my-playlists-grid" class="song-grid"></div></div> </section>
+            <section id="queue-view" class="view"> <div class="view-header"><h2>Song Queue</h2><div class="view-actions"><button id="clearQueueButton" class="secondary-action-button"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg>Clear Queue</button></div></div> <ul id="mainQueueList"></ul> <p id="emptyQueueMessage" style="text-align:center; color: var(--text-secondary); margin-top: 20px;">Queue is empty. Add songs to play next!</p> </section>
+            <section id="playlist-detail-view" class="view"> <div class="view-header"> <h2 id="playlistDetailName">Playlist: </h2> <div class="view-actions"> <button id="playlistShufflePlayButton" class="action-button"><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"></path></svg>Shuffle Play</button> <button id="playlistPlayAllButton" class="action-button"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>Play All</button> <button id="backToLibraryButton" class="secondary-action-button"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>Back</button> </div> </div> <div class="sort-controls" id="playlistDetailSortControls" style="margin-bottom:15px;"> <label for="sortPlaylistDetail">Sort songs by:</label> <select id="sortPlaylistDetail"> <option value="default">Playlist Order</option> <option value="date_desc">Date Added (Newest)</option> <option value="date_asc">Date Added (Oldest)</option> <option value="name_asc">Name (A-Z)</option> <option value="name_desc">Name (Z-A)</option> </select> </div> <div class="song-grid" id="playlist-songs-grid"></div> </section>
+            <section id="upload-view" class="view form-section"> <div class="view-header"><h2>Upload Song</h2></div> <form id="uploadForm"> <div><label for="songFile">Song (MP3/OGG, <10min):</label><input type="file" id="songFile" accept=".mp3,.ogg" required><small id="songFileError" class="error-message"></small></div> <div><label for="songName">Song Name:</label><input type="text" id="songName" required></div> <div><label for="artistName">Artist Name:</label><input type="text" id="artistName" required></div> <div><label for="coverFile">Cover (PNG/JPG/JPEG):</label><input type="file" id="coverFile" accept=".png,.jpg,.jpeg" required><img id="coverPreview" src="#" alt="Cover Preview" style="display: none;"></div> <div><label for="category">Category:</label><select id="category"><option value="Hip Hop">Hip Hop</option><option value="Dance">Dance</option><option value="EDM">EDM</option><option value="Dubstep">Dubstep</option><option value="Phonk">Phonk</option><option value="Rock">Rock</option><option value="Pop">Pop</option><option value="Classical">Classical</option><option value="Jazz">Jazz</option><option value="Other" selected>Other</option></select></div> <div><label for="albumName">Album Name (optional):</label><input type="text" id="albumName" placeholder="No Album"></div> <button type="submit" class="action-button">Upload Song</button> </form> </section>
+            <section id="admin-view" class="view"> <div class="view-header"><h2>Admin Panel</h2></div> <div class="admin-stats"> <div class="stat-card"><h4>Total Songs</h4><p id="adminTotalSongs">0</p></div> <div class="stat-card"><h4>Total Users</h4><p id="adminTotalUsers">0</p></div> <div class="stat-card"><h4>Total Plays</h4><p id="adminTotalPlays">0</p></div> </div> <h3>Registered Users</h3> <table class="user-list-table"><thead><tr><th>Username</th><th>Email</th><th>Playlists</th><th>Liked Songs</th><th>Uploads</th></tr></thead><tbody id="adminUserList"></tbody></table> </section>
         </main>
     </div>
-
-    <div class="player-bar" id="playerBar">
-        <div class="player-info-left">
-            <img id="playerCover" src="#" alt="Track Cover">
-            <div>
-                <p id="playerName">Song Name</p>
-                <p id="playerArtist">Artist</p>
-            </div>
-        </div>
-        <div class="player-controls-center">
-            <div class="buttons">
-                <button id="prevTrackButton" title="Previous">≪</button>
-                <button id="playPauseButton" title="Play/Pause">▶</button>
-                <button id="nextTrackButton" title="Next">≫</button>
-                <button id="repeatButton" title="Repeat">🔁</button>
-                <button id="shuffleButton" title="Shuffle">🔀</button>
-            </div>
-            <div class="progress-container">
-                <span id="currentTime">0:00</span>
-                <input type="range" id="seekBar" value="0" min="0" max="100">
-                <span id="totalTime">0:00</span>
-            </div>
-        </div>
-        <div class="player-controls-right">
-            <svg id="volumeIcon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg>
-            <input type="range" id="volumeBar" value="1" min="0" max="1" step="0.01">
-        </div>
-        <audio id="audioPlayer"></audio>
-    </div>
-
-    <!-- Edit Song Modal -->
-    <div id="editSongModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" data-modal-id="editSongModal">&times;</span>
-            <h3>Edit Song</h3>
-            <form id="editSongForm">
-                <input type="hidden" id="editSongId">
-                <div><label for="editSongName">Song Name:</label><input type="text" id="editSongName" required></div>
-                <div><label for="editArtistName">Artist Name:</label><input type="text" id="editArtistName" required></div>
-                <div><label for="editAlbumName">Album Name:</label><input type="text" id="editAlbumName"></div>
-                <div>
-                    <label for="editCategory">Category:</label>
-                    <select id="editCategory">
-                        <option value="Hip Hop">Hip Hop</option> <option value="Dance">Dance</option> <option value="EDM">EDM</option>
-                        <option value="Dubstep">Dubstep</option> <option value="Phonk">Phonk</option> <option value="Rock">Rock</option>
-                        <option value="Pop">Pop</option> <option value="Classical">Classical</option> <option value="Jazz">Jazz</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="editIsPrivate">Private Song:</label>
-                    <input type="checkbox" id="editIsPrivate" style="width:auto;">
-                </div>
-                <button type="submit">Save Changes</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Song Detail Modal (for comments, etc.) -->
-    <div id="songDetailModal" class="modal">
-        <div class="modal-content" style="max-width: 700px;">
-            <span class="close-button" data-modal-id="songDetailModal">&times;</span>
-            <div class="song-detail-info">
-                <img id="detailCover" src="#" alt="Cover">
-                <div class="info-text">
-                    <h3 id="detailName" class="detail-name">Song Name</h3>
-                    <p id="detailArtist" class="detail-artist">Artist</p>
-                    <p id="detailAlbum">Album: </p>
-                    <p id="detailCategory">Category: </p>
-                    <p id="detailUploader">Uploaded by: </p>
-                    <p id="detailPlays">Plays: </p>
-                    <p id="detailLikes">Likes: </p>
-                </div>
-            </div>
-            <div class="comments-section">
-                <h4>Comments</h4>
-                <div id="commentsList" style="max-height: 200px; overflow-y: auto;">
-                    <!-- Comments will be listed here -->
-                </div>
-                <form id="commentForm">
-                    <input type="hidden" id="commentSongId">
-                    <textarea id="commentText" placeholder="Write a comment..." required></textarea>
-                    <button type="submit">Post Comment</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add to Playlist Modal -->
-    <div id="addToPlaylistModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" data-modal-id="addToPlaylistModal">&times;</span>
-            <h3>Add to Playlist</h3>
-            <input type="hidden" id="songIdToAddToPlaylist">
-            <select id="playlistSelectForAdding" style="width:100%; margin-bottom:15px; padding:10px;">
-                <!-- Options will be populated by JS -->
-            </select>
-            <button id="confirmAddToPlaylistButton">Add to Selected Playlist</button>
-        </div>
-    </div>
-
+    <div class="player-bar" id="playerBar"> <div class="player-info-left"><img id="playerCover" src="#" alt="Track Cover"><div><p id="playerName">Song Name</p><p id="playerArtist">Artist</p></div></div> <div class="player-controls-center"><div class="buttons"><button id="prevTrackButton" title="Previous (ArrowLeft)">≪</button><button id="playPauseButton" title="Play/Pause (Space)">▶</button><button id="nextTrackButton" title="Next (ArrowRight)">≫</button><button id="repeatButton" title="Repeat (R)">🔁</button><button id="shuffleButton" title="Shuffle (S)">🔀</button></div><div class="progress-container"><span id="currentTime">0:00</span><input type="range" id="seekBar" value="0" min="0" max="100"><span id="totalTime">0:00</span></div></div> <div class="player-controls-right"><svg id="volumeIcon" viewBox="0 0 24 24" width="22" height="22" title="Mute (M)"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg><input type="range" id="volumeBar" value="1" min="0" max="1" step="0.01" title="Volume (ArrowUp/Down)"></div> <audio id="audioPlayer"></audio> </div>
+    <!-- Modals -->
+    <div id="editSongModal" class="modal"><div class="modal-content form-section"><span class="close-button" data-modal-id="editSongModal">&times;</span><h3>Edit Song</h3><form id="editSongForm"><input type="hidden" id="editSongId"><div><label for="editSongName">Song Name:</label><input type="text" id="editSongName" required></div><div><label for="editArtistName">Artist Name:</label><input type="text" id="editArtistName" required></div><div><label for="editAlbumName">Album Name:</label><input type="text" id="editAlbumName"></div><div><label for="editCategory">Category:</label><select id="editCategory"><option value="Hip Hop">Hip Hop</option><option>...</option><option value="Other">Other</option></select></div><div><label for="editIsPrivate" style="display:inline-block; margin-right:10px;">Private:</label><input type="checkbox" id="editIsPrivate" style="width:auto; vertical-align: middle;"></div><button type="submit" class="action-button">Save Changes</button></form></div></div>
+    <div id="songDetailModal" class="modal"><div class="modal-content" style="max-width: 700px;"><span class="close-button" data-modal-id="songDetailModal">&times;</span><div class="song-detail-info"><img id="detailCover" src="#" alt="Cover"><div class="info-text"><h3 id="detailName" class="detail-name">Song Name</h3><p id="detailArtist" class="detail-artist">Artist</p><p id="detailAlbum">Album: </p><p id="detailCategory">Category: </p><p id="detailDuration">Duration: </p><p id="detailUploaded">Uploaded: </p><p id="detailUploader">By: </p><p id="detailPlays">Plays: </p><p id="detailLikes">Likes: </p></div></div><div class="comments-section form-section"><h4>Comments</h4><div id="commentsList"></div><form id="commentForm"><input type="hidden" id="commentSongId"><textarea id="commentText" placeholder="Write a comment..." required></textarea><button type="submit" class="action-button">Post Comment</button></form></div></div></div>
+    <div id="addToPlaylistModal" class="modal"><div class="modal-content form-section"><span class="close-button" data-modal-id="addToPlaylistModal">&times;</span><h3>Add to Playlist</h3><input type="hidden" id="songIdToAddToPlaylist"><select id="playlistSelectForAdding" style="width:100%; margin-bottom:15px; padding:10px;"></select><button id="confirmAddToPlaylistButton" class="action-button">Add</button></div></div>
+    <div id="editPlaylistModal" class="modal"><div class="modal-content form-section"><span class="close-button" data-modal-id="editPlaylistModal">&times;</span><h3>Edit Playlist Name</h3><input type="hidden" id="editingPlaylistId"><label for="newPlaylistNameInput">New Name:</label><input type="text" id="newPlaylistNameInput" required><button id="confirmEditPlaylistNameButton" class="action-button">Save Name</button></div></div>
+    <div id="queueModal" class="modal"><div class="modal-content"><span class="close-button" data-modal-id="queueModal">&times;</span><h3>Song Queue</h3><ul id="queueList"></ul><p id="queueModalEmptyMessage" style="display:none;text-align:center;color:var(--text-secondary);">Queue is empty.</p><div class="queue-actions" style="margin-top:15px;"><button id="clearQueueModalButton" class="secondary-action-button">Clear Queue</button></div></div></div>
 
     <script>
     // --- START OF SCRIPT --- //
-    // --- Globals & State ---
-    let songs = [];
-    let usersData = {}; // { username: { email: '', recentlyPlayed: [], likedSongs: [], playlists: [{id, name, songIds:[]}] } }
-    let currentUser = null;
-    let currentUserEmail = null; // For admin check
-    let isAdmin = false;
-    let currentPlayingSongId = null;
-    let currentPlaylist = []; // For shuffle/repeat context
-    let currentPlaylistIndex = -1;
-    let isShuffle = false;
-    let repeatMode = 'none'; // 'none', 'one', 'all'
+    let songs = []; let usersData = {}; let currentUser = null; let currentUserEmail = null;
+    let isAdmin = false; let currentCaptchaAnswer = null; let songQueue = [];
+    let currentPlayingSongId = null; let currentPlaylistContext = []; let currentPlaylistIndex = -1;
+    let isShuffle = false; let repeatMode = 'none'; const MAX_SONG_DURATION = 10 * 60;
 
-    const MAX_SONG_DURATION = 10 * 60; // 10 minutes
+    // DOM Elements (key ones)
+    const authErrorEl=document.getElementById('authError'),captchaChallengeEl=document.getElementById('captchaChallenge'),captchaInputEl=document.getElementById('captchaInput'),views=document.querySelectorAll('.view'),navLinks=document.querySelectorAll('.sidebar nav li[data-view]'),audioPlayer=document.getElementById('audioPlayer'),playerBar=document.getElementById('playerBar'),playerCover=document.getElementById('playerCover'),playerNameEl=document.getElementById('playerName'),playerArtistEl=document.getElementById('playerArtist'),playPauseButton=document.getElementById('playPauseButton'),prevTrackButton=document.getElementById('prevTrackButton'),nextTrackButton=document.getElementById('nextTrackButton'),seekBar=document.getElementById('seekBar'),currentTimeEl=document.getElementById('currentTime'),totalTimeEl=document.getElementById('totalTime'),volumeBar=document.getElementById('volumeBar'),volumeIcon=document.getElementById('volumeIcon'),repeatButton=document.getElementById('repeatButton'),shuffleButton=document.getElementById('shuffleButton'),usernameInput=document.getElementById('usernameInput'),emailInput=document.getElementById('emailInput'),passwordInput=document.getElementById('passwordInput'),setUserButton=document.getElementById('setUserButton'),currentUserDisplay=document.getElementById('currentUserDisplay'),adminBadge=document.getElementById('adminBadge'),adminNav=document.getElementById('adminNav'),uploadForm=document.getElementById('uploadForm'),songFileInput=document.getElementById('songFile'),songFileError=document.getElementById('songFileError'),coverPreview=document.getElementById('coverPreview'),coverFileInput=document.getElementById('coverFile'),searchInput=document.getElementById('searchInput'),filterTypeSelect=document.getElementById('filterType'),filterValueInput=document.getElementById('filterValueInput'),searchButton=document.getElementById('searchButton'),editSongModal=document.getElementById('editSongModal'),editSongForm=document.getElementById('editSongForm'),songDetailModal=document.getElementById('songDetailModal'),commentForm=document.getElementById('commentForm'),commentsList=document.getElementById('commentsList'),addToPlaylistModal=document.getElementById('addToPlaylistModal'),editPlaylistModal=document.getElementById('editPlaylistModal'),newPlaylistNameInput=document.getElementById('newPlaylistNameInput'),confirmEditPlaylistNameButton=document.getElementById('confirmEditPlaylistNameButton'),queueModal=document.getElementById('queueModal'),queueListEl=document.getElementById('queueList'),mainQueueListEl=document.getElementById('mainQueueList'),queueCountEl=document.getElementById('queueCount'),clearQueueButton=document.getElementById('clearQueueButton'),emptyQueueMessageEl=document.getElementById('emptyQueueMessage'),clearQueueModalButton=document.getElementById('clearQueueModalButton'),sortMyUploadsSelect=document.getElementById('sortMyUploads'),sortPlaylistDetailSelect=document.getElementById('sortPlaylistDetail'),playlistPlayAllButton=document.getElementById('playlistPlayAllButton'),playlistShufflePlayButton=document.getElementById('playlistShufflePlayButton');
 
-    // --- DOM Elements ---
-    const views = document.querySelectorAll('.view');
-    const navLinks = document.querySelectorAll('.sidebar nav li[data-view]');
-    
-    const audioPlayer = document.getElementById('audioPlayer');
-    const playerBar = document.getElementById('playerBar');
-    const playerCover = document.getElementById('playerCover');
-    const playerNameEl = document.getElementById('playerName');
-    const playerArtistEl = document.getElementById('playerArtist');
-    const playPauseButton = document.getElementById('playPauseButton');
-    const prevTrackButton = document.getElementById('prevTrackButton');
-    const nextTrackButton = document.getElementById('nextTrackButton');
-    const seekBar = document.getElementById('seekBar');
-    const currentTimeEl = document.getElementById('currentTime');
-    const totalTimeEl = document.getElementById('totalTime');
-    const volumeBar = document.getElementById('volumeBar');
-    const volumeIcon = document.getElementById('volumeIcon');
-    const repeatButton = document.getElementById('repeatButton');
-    const shuffleButton = document.getElementById('shuffleButton');
-
-    const usernameInput = document.getElementById('usernameInput');
-    const emailInput = document.getElementById('emailInput');
-    const setUserButton = document.getElementById('setUserButton');
-    const currentUserDisplay = document.getElementById('currentUserDisplay');
-    const adminBadge = document.getElementById('adminBadge');
-
-    const uploadForm = document.getElementById('uploadForm');
-    const songFileInput = document.getElementById('songFile');
-    const songFileError = document.getElementById('songFileError');
-    const coverPreview = document.getElementById('coverPreview');
-    const coverFileInput = document.getElementById('coverFile');
-
-    const searchInput = document.getElementById('searchInput');
-    const filterTypeSelect = document.getElementById('filterType');
-    const filterValueInput = document.getElementById('filterValueInput');
-    const searchButton = document.getElementById('searchButton');
-
-    const editSongModal = document.getElementById('editSongModal');
-    const editSongForm = document.getElementById('editSongForm');
-    const songDetailModal = document.getElementById('songDetailModal');
-    const commentForm = document.getElementById('commentForm');
-    const commentsList = document.getElementById('commentsList');
-    const addToPlaylistModal = document.getElementById('addToPlaylistModal');
-
-
-    // --- Initialization ---
     function init() {
-        loadData();
-        updateCurrentUserDisplay();
-        setupEventListeners();
-        navigateToView('home'); 
-        renderAllDynamicContent();
-        audioPlayer.volume = parseFloat(localStorage.getItem('freetify_volume') || '1');
-        volumeBar.value = audioPlayer.volume;
-        updateVolumeIcon();
-
-        // Initial player bar state
-        if (!audioPlayer.paused || audioPlayer.currentTime > 0) {
-            playerBar.style.display = 'flex';
-        } else {
-            playerBar.style.display = 'none';
-        }
+        loadData(); updateCurrentUserDisplay(); generateCaptcha(); setupEventListeners();
+        navigateToView('home'); renderAllDynamicContent();
+        audioPlayer.volume = parseFloat(localStorage.getItem('freetify_volume_v5') || '1');
+        volumeBar.value = audioPlayer.volume; updateVolumeIcon();
+        playerBar.style.display = (!audioPlayer.paused || audioPlayer.currentTime > 0) ? 'flex' : 'none';
+        updateQueueCount();
     }
 
-    // --- Data Management (localStorage) ---
     function loadData() {
-        songs = JSON.parse(localStorage.getItem('freetify_songs_v2')) || [];
-        usersData = JSON.parse(localStorage.getItem('freetify_usersData_v2')) || {};
-        currentUser = localStorage.getItem('freetify_currentUser_v2') || null;
-        if (currentUser && usersData[currentUser]) {
-            currentUserEmail = usersData[currentUser].email || null;
-        }
+        songs = JSON.parse(localStorage.getItem('freetify_songs_v5')) || [];
+        usersData = JSON.parse(localStorage.getItem('freetify_usersData_v5')) || {};
+        currentUser = localStorage.getItem('freetify_currentUser_v5') || null;
+        songQueue = JSON.parse(localStorage.getItem('freetify_songQueue_v5')) || [];
+        if (currentUser && usersData[currentUser]) currentUserEmail = usersData[currentUser].email || null;
         checkAdminStatus();
     }
-
     function saveData() {
-        // Filter out blob objects before saving songs
-        const songsToSave = songs.map(s => {
-            const { songBlob, ...rest } = s; // Exclude songBlob
-            return rest;
-        });
-        localStorage.setItem('freetify_songs_v2', JSON.stringify(songsToSave));
-        localStorage.setItem('freetify_usersData_v2', JSON.stringify(usersData));
-        localStorage.setItem('freetify_currentUser_v2', currentUser || '');
+        const sTS = songs.map(s=>{const{songBlob,...r}=s;return r;}); localStorage.setItem('freetify_songs_v5',JSON.stringify(sTS));
+        localStorage.setItem('freetify_usersData_v5',JSON.stringify(usersData)); localStorage.setItem('freetify_currentUser_v5',currentUser||'');
+        localStorage.setItem('freetify_volume_v5',audioPlayer.volume.toString()); localStorage.setItem('freetify_songQueue_v5',JSON.stringify(songQueue));
     }
-    
-    // Call this function whenever songs or usersData is modified significantly
-    function refreshAllViewsAndData() {
-        saveData();
-        renderAllDynamicContent(); 
-    }
-
+    function refreshAllViewsAndData() { saveData(); renderAllDynamicContent(); }
     function renderAllDynamicContent() {
-        // This function will re-render all sections that depend on songs or userData
-        // Call after major data changes (upload, edit, delete, like, play, comment, playlist change)
         if (document.getElementById('home-view').classList.contains('active')) renderAllHomeSections();
         if (document.getElementById('library-view').classList.contains('active')) renderLibrarySections();
-        if (document.getElementById('search-view').classList.contains('active')) {
-            // Re-run search if a search was active, or clear it. For simplicity, just clear.
-            // Or better, just ensure any displayed cards are updated.
-            // For now, if search results are on screen, assume they might be stale.
-            // A more robust solution would re-filter and re-render based on current search terms.
-        }
         if (document.getElementById('playlist-detail-view').classList.contains('active')) {
-            const openPlaylistId = document.getElementById('playlistDetailName').dataset.playlistId;
-            if (openPlaylistId) displayPlaylistDetail(openPlaylistId);
+            const oPID = document.getElementById('playlistDetailName').dataset.playlistId; if(oPID)displayPlaylistDetail(oPID);
         }
-        renderUserPlaylistsNav(); // Always update playlists in sidebar
+        if (document.getElementById('queue-view').classList.contains('active')) renderQueueView();
+        if (document.getElementById('admin-view').classList.contains('active') && isAdmin) renderAdminView();
+        renderUserPlaylistsNav(); updateQueueCount();
     }
 
-
-    // --- User Management & Admin ---
-    function setCurrentUser() {
-        const username = usernameInput.value.trim();
-        const email = emailInput.value.trim().toLowerCase();
-
-        if (!username) {
-            alert('Username cannot be empty.');
-            return;
-        }
-        currentUser = username;
-        currentUserEmail = email; // Store email for admin check
-
-        if (!usersData[currentUser]) {
-            usersData[currentUser] = { email: email, recentlyPlayed: [], likedSongs: [], playlists: [] };
-        } else {
-            usersData[currentUser].email = email; // Update email if user "logs in" again
-        }
-        
-        checkAdminStatus();
-        updateCurrentUserDisplay();
-        saveData(); // Save user data
-        renderAllDynamicContent(); // Re-render sections like "Recently Played BY YOU"
-    }
-
-    function checkAdminStatus() {
-        isAdmin = currentUser === 'Sharky' && currentUserEmail === 'sebbthemaker@gmail.com';
-        adminBadge.style.display = isAdmin ? 'inline' : 'none';
-    }
-
-    function updateCurrentUserDisplay() {
-        if (currentUser) {
-            currentUserDisplay.textContent = currentUser;
-            usernameInput.value = currentUser;
-            if (usersData[currentUser] && usersData[currentUser].email) {
-                emailInput.value = usersData[currentUser].email;
-            } else {
-                emailInput.value = '';
-            }
-        } else {
-            currentUserDisplay.textContent = 'None';
-            usernameInput.value = '';
-            emailInput.value = '';
-        }
-        adminBadge.style.display = isAdmin ? 'inline' : 'none';
-    }
-
-
-    // --- Navigation ---
-    function navigateToView(viewId) {
-        views.forEach(view => view.classList.remove('active'));
-        const targetView = document.getElementById(`${viewId}-view`);
-        if (targetView) targetView.classList.add('active');
-        
-        navLinks.forEach(link => link.classList.remove('active-nav'));
-        const activeLink = document.querySelector(`.sidebar nav li[data-view="${viewId}"]`);
-        if (activeLink) activeLink.classList.add('active-nav');
-
-        // Specific rendering logic based on view
-        if (viewId === 'home') renderAllHomeSections();
-        if (viewId === 'library') renderLibrarySections();
-        if (viewId === 'search') document.getElementById('search-results-grid').innerHTML = '<p>Enter search term and click Search.</p>';
-        if (viewId === 'upload') uploadForm.reset(); coverPreview.style.display = 'none';
-    }
-
-    // --- Song Card Creation & Rendering ---
-    function createSongCard(song) {
-        if (!song) return null; // Safety check
-
-        // Visibility check: Admins see all. Users see non-private or their own private songs.
-        if (!isAdmin && song.isPrivate && song.uploader !== currentUser) {
-            return null; 
-        }
-
-        const card = document.createElement('div');
-        card.className = 'song-card';
-        card.dataset.songId = song.id;
-
-        const coverImg = document.createElement('img');
-        coverImg.className = 'cover';
-        coverImg.src = song.coverUrl || 'https://via.placeholder.com/180?text=No+Cover';
-        coverImg.alt = song.name;
-        coverImg.onclick = () => openSongDetailModal(song.id); // Click cover for details
-
-        const nameEl = document.createElement('p');
-        nameEl.className = 'song-name';
-        nameEl.textContent = song.name;
-
-        const artistEl = document.createElement('p');
-        artistEl.className = 'artist-name';
-        artistEl.textContent = `${song.artist}`;
-        
-        const albumEl = document.createElement('p');
-        albumEl.className = 'song-album';
-        albumEl.textContent = `Album: ${song.album || 'N/A'}`;
-
-        const uploaderEl = document.createElement('p');
-        uploaderEl.className = 'uploader-name';
-        uploaderEl.textContent = `Up: ${song.uploader || 'Unknown'}`;
-
-        const playsEl = document.createElement('p');
-        playsEl.className = 'song-plays';
-        playsEl.textContent = `Plays: ${song.plays || 0}`;
-        
-        const likesEl = document.createElement('p');
-        likesEl.className = 'song-likes';
-        likesEl.textContent = `Likes: ${song.likes || 0}`;
-
-        // Like button on card
-        const likeButton = document.createElement('button');
-        likeButton.className = 'like-button-card';
-        likeButton.innerHTML = '&#x2661;'; // Empty heart
-        if (currentUser && usersData[currentUser]?.likedSongs.includes(song.id)) {
-            likeButton.classList.add('liked');
-            likeButton.innerHTML = '&#x2665;'; // Filled heart
-        }
-        likeButton.onclick = (e) => {
-            e.stopPropagation(); 
-            toggleLike(song.id);
-        };
-        
-        // Privacy status indicator
-        if (song.isPrivate) {
-            const privacyStatus = document.createElement('span');
-            privacyStatus.className = 'privacy-status';
-            privacyStatus.textContent = 'Private';
-            card.appendChild(privacyStatus);
-        }
-
-        // Actions Overlay
-        const actionsOverlay = document.createElement('div');
-        actionsOverlay.className = 'actions-overlay';
-
-        const playBtnOverlay = document.createElement('button');
-        playBtnOverlay.textContent = 'Play';
-        playBtnOverlay.onclick = (e) => { e.stopPropagation(); playSongById(song.id); };
-        actionsOverlay.appendChild(playBtnOverlay);
-
-        const addToPlaylistBtn = document.createElement('button');
-        addToPlaylistBtn.textContent = 'Add to Playlist';
-        addToPlaylistBtn.onclick = (e) => { e.stopPropagation(); openAddToPlaylistModal(song.id); };
-        actionsOverlay.appendChild(addToPlaylistBtn);
-        
-        if (isAdmin) {
-            const editBtn = document.createElement('button');
-            editBtn.textContent = 'Edit';
-            editBtn.className = 'admin-action';
-            editBtn.onclick = (e) => { e.stopPropagation(); openEditSongModal(song.id); };
-            actionsOverlay.appendChild(editBtn);
-
-            const deleteBtn = document.createElement('button');
-            deleteBtn.textContent = 'Delete';
-            deleteBtn.className = 'admin-action';
-            deleteBtn.onclick = (e) => { e.stopPropagation(); deleteSong(song.id); };
-            actionsOverlay.appendChild(deleteBtn);
-        }
-
-
-        card.appendChild(coverImg);
-        card.appendChild(nameEl);
-        card.appendChild(artistEl);
-        card.appendChild(albumEl);
-        // card.appendChild(uploaderEl); // Can be too much info on card, available in detail
-        card.appendChild(playsEl);
-        card.appendChild(likesEl);
-        card.appendChild(likeButton);
-        card.appendChild(actionsOverlay);
-        
-        return card;
-    }
-
-    function renderSongGrid(songArray, gridElementId, emptyMessage = "No songs to display.") {
-        const grid = document.getElementById(gridElementId);
-        grid.innerHTML = ''; 
-        if (songArray && songArray.length > 0) {
-            let hasVisibleSongs = false;
-            songArray.forEach(song => {
-                const card = createSongCard(song);
-                if (card) { // createSongCard returns null for non-visible private songs
-                    grid.appendChild(card);
-                    hasVisibleSongs = true;
-                }
-            });
-            if (!hasVisibleSongs) {
-                 grid.innerHTML = `<p>${emptyMessage}</p>`;
-            }
-        } else {
-            grid.innerHTML = `<p>${emptyMessage}</p>`;
-        }
-    }
-
-    // --- Home Page Sections ---
-    function renderAllHomeSections() {
-        renderRecentlyUploaded();
-        renderMostPlayed();
-        renderMostLiked();
-        if (currentUser) renderRecentlyPlayedByYou();
-        else document.getElementById('recently-played-grid').innerHTML = '<p>Set a user to see your recently played songs.</p>';
-    }
-
-    function renderRecentlyUploaded() {
-        const visibleSongs = songs.filter(song => isAdmin || !song.isPrivate || song.uploader === currentUser);
-        const sortedSongs = [...visibleSongs].sort((a, b) => b.uploadTimestamp - a.uploadTimestamp);
-        renderSongGrid(sortedSongs.slice(0, 10), 'recently-uploaded-grid', 'No songs uploaded yet.');
-    }
-
-    function renderMostPlayed() {
-        const visibleSongs = songs.filter(song => isAdmin || !song.isPrivate || song.uploader === currentUser);
-        const sortedSongs = [...visibleSongs].sort((a, b) => (b.plays || 0) - (a.plays || 0));
-        renderSongGrid(sortedSongs.slice(0, 10), 'most-played-grid', 'No songs played yet.');
-    }
+    function generateCaptcha(){const n1=Math.floor(Math.random()*10)+1,n2=Math.floor(Math.random()*10)+1;captchaChallengeEl.textContent=`${n1} + ${n2} = ?`;currentCaptchaAnswer=n1+n2;captchaInputEl.value='';}
+    function simpleHash(p){let h=0;for(let i=0;i<p.length;i++){const c=p.charCodeAt(i);h=((h<<5)-h)+c;h|=0;}return h.toString();}
+    function setCurrentUser(){const u=usernameInput.value.trim(),e=emailInput.value.trim().toLowerCase(),p=passwordInput.value,cap=parseInt(captchaInputEl.value,10);authErrorEl.textContent='';if(!u||!e||!p){authErrorEl.textContent='All fields required.';generateCaptcha();return;}if(cap!==currentCaptchaAnswer){authErrorEl.textContent='CAPTCHA incorrect.';generateCaptcha();return;}const hp=simpleHash(p);if(usersData[u]){if(usersData[u].passwordHash===hp){currentUser=u;currentUserEmail=usersData[u].email;if(usersData[u].email!==e)usersData[u].email=e;}else{authErrorEl.textContent='Incorrect password.';generateCaptcha();return;}}else{usersData[u]={email:e,passwordHash:hp,recentlyPlayed:[],likedSongs:[],playlists:[]};currentUser=u;currentUserEmail=e;}checkAdminStatus();updateCurrentUserDisplay();saveData();renderAllDynamicContent();passwordInput.value='';generateCaptcha();alert(`Welcome, ${currentUser}!`);}
+    function checkAdminStatus(){isAdmin=currentUser==='Sharky'&&currentUserEmail==='sebbthemaker@gmail.com';adminNav.style.display=isAdmin?'flex':'none';}
+    function updateCurrentUserDisplay(){if(currentUser&&usersData[currentUser]){currentUserDisplay.textContent=currentUser;usernameInput.value=currentUser;emailInput.value=usersData[currentUser].email;}else{currentUserDisplay.textContent='None';usernameInput.value='';emailInput.value='';currentUser=null;isAdmin=false;adminNav.style.display='none';}adminBadge.style.display=isAdmin?'inline':'none';}
+    function navigateToView(vId){views.forEach(v=>v.classList.remove('active'));const tV=document.getElementById(`${vId}-view`);if(tV)tV.classList.add('active');navLinks.forEach(l=>l.classList.remove('active-nav'));const aL=document.querySelector(`.sidebar nav li[data-view="${vId}"]`);if(aL)aL.classList.add('active-nav');if(vId==='home')renderAllHomeSections();if(vId==='library')renderLibrarySections();if(vId==='search')document.getElementById('search-results-grid').innerHTML='<p>Enter search.</p>';if(vId==='upload'){uploadForm.reset();coverPreview.style.display='none';songFileError.textContent='';}if(vId==='queue')renderQueueView();if(vId==='admin'&&isAdmin)renderAdminView();else if(vId==='admin'&&!isAdmin)navigateToView('home');}
     
-    function renderMostLiked() {
-        const visibleSongs = songs.filter(song => isAdmin || !song.isPrivate || song.uploader === currentUser);
-        const sortedSongs = [...visibleSongs].sort((a, b) => (b.likes || 0) - (a.likes || 0));
-        renderSongGrid(sortedSongs.slice(0, 10), 'most-liked-grid', 'No songs liked yet.');
-    }
-
-    function renderRecentlyPlayedByYou() {
-        if (!currentUser || !usersData[currentUser]) {
-            document.getElementById('recently-played-grid').innerHTML = '<p>Set a user and play songs to see them here.</p>';
-            return;
-        }
-        const recentIds = usersData[currentUser].recentlyPlayed || [];
-        const recentSongs = recentIds.map(id => songs.find(s => s.id === id)).filter(Boolean);
-        // Filter out songs that might have become private AND not owned by current user
-        const visibleRecentSongs = recentSongs.filter(song => isAdmin || !song.isPrivate || song.uploader === currentUser);
-        renderSongGrid(visibleRecentSongs, 'recently-played-grid', 'You haven\'t played any songs recently.');
-    }
+    function createSongCard(song){if(!song||(!isAdmin&&song.isPrivate&&song.uploader!==currentUser))return null;const card=document.createElement('div');card.className='song-card';card.dataset.songId=song.id;const cI=document.createElement('img');cI.className='cover';cI.src=song.coverUrl||`https://via.placeholder.com/190?text=${encodeURIComponent(song.name)}`;cI.alt=song.name;cI.onclick=()=>openSongDetailModal(song.id);const nE=document.createElement('p');nE.className='song-name';nE.textContent=song.name;const aE=document.createElement('p');aE.className='artist-name';aE.textContent=`${song.artist}`;const alE=document.createElement('p');alE.className='song-album';alE.textContent=`Album: ${song.album||'N/A'}`;const sL=document.createElement('div');sL.className='stats-line';sL.innerHTML=`<span><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:middle;margin-right:3px;"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path></svg>${song.plays||0}</span> <span><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:middle;margin-right:3px;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>${song.likes||0}</span>`;const lB=document.createElement('button');lB.className='like-button-card';lB.title="Like/Unlike";lB.innerHTML=(currentUser&&usersData[currentUser]?.likedSongs.includes(song.id))?'&#x2665;':'&#x2661;';if(currentUser&&usersData[currentUser]?.likedSongs.includes(song.id))lB.classList.add('liked');lB.onclick=(e)=>{e.stopPropagation();toggleLike(song.id);};if(song.isPrivate){const pS=document.createElement('span');pS.className='privacy-status';pS.textContent='Private';card.appendChild(pS);}const acts=document.createElement('div');acts.className='actions-overlay';const pBtn=document.createElement('button');pBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>Play';pBtn.onclick=(e)=>{e.stopPropagation();playSongById(song.id);};acts.appendChild(pBtn);const qBtn=document.createElement('button');qBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"></path></svg>Queue';qBtn.onclick=(e)=>{e.stopPropagation();addToQueue(song.id);};acts.appendChild(qBtn);const dlBtn=document.createElement('button');dlBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path></svg>Download';dlBtn.onclick=(e)=>{e.stopPropagation();downloadSong(song.id);};acts.appendChild(dlBtn);const aPBtn=document.createElement('button');aPBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8h-4v4h-2v-4H8v-2h4V8h2v4h4v2z"></path></svg>Add to Playlist';aPBtn.onclick=(e)=>{e.stopPropagation();openAddToPlaylistModal(song.id);};acts.appendChild(aPBtn);if(isAdmin){const eB=document.createElement('button');eB.className='admin-action';eB.innerHTML='<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></svg>Edit';eB.onclick=(e)=>{e.stopPropagation();openEditSongModal(song.id);};acts.appendChild(eB);const dBtn=document.createElement('button');dBtn.className='admin-action';dBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg>Delete';dBtn.onclick=(e)=>{e.stopPropagation();deleteSong(song.id);};acts.appendChild(dBtn);}card.appendChild(cI);card.appendChild(nE);card.appendChild(aE);card.appendChild(alE);card.appendChild(sL);card.appendChild(lB);card.appendChild(acts);return card;}
+    function renderSongGrid(sA,gId,msg="No songs."){const g=document.getElementById(gId);g.innerHTML='';if(sA&&sA.length>0){let v=false;sA.forEach(s=>{const c=createSongCard(s);if(c){g.appendChild(c);v=true;}});if(!v)g.innerHTML=`<p>${msg}</p>`;}else{g.innerHTML=`<p>${msg}</p>`;}}
+    function renderAllHomeSections(){renderRecentlyUploaded();renderMostPlayed();renderMostLiked();if(currentUser&&usersData[currentUser])renderRecentlyPlayedByYou();else document.getElementById('recently-played-grid').innerHTML='<p>Login for recently played.</p>';}
+    function renderRecentlyUploaded(){const vS=songs.filter(s=>isAdmin||!s.isPrivate||s.uploader===currentUser);renderSongGrid([...vS].sort((a,b)=>b.uploadTimestamp-a.uploadTimestamp).slice(0,10),'recently-uploaded-grid','No public songs.');}
+    function renderMostPlayed(){const vS=songs.filter(s=>isAdmin||!s.isPrivate||s.uploader===currentUser);renderSongGrid([...vS].sort((a,b)=>(b.plays||0)-(a.plays||0)).slice(0,10),'most-played-grid','No songs played.');}
+    function renderMostLiked(){const vS=songs.filter(s=>isAdmin||!s.isPrivate||s.uploader===currentUser);renderSongGrid([...vS].sort((a,b)=>(b.likes||0)-(a.likes||0)).slice(0,10),'most-liked-grid','No songs liked.');}
+    function renderRecentlyPlayedByYou(){const rIs=usersData[currentUser].recentlyPlayed||[];const rSs=rIs.map(id=>songs.find(s=>s.id===id)).filter(Boolean);const vRSs=rSs.filter(s=>isAdmin||!s.isPrivate||s.uploader===currentUser);renderSongGrid(vRSs,'recently-played-grid','No recent plays.');}
+    function renderLibrarySections(){if(!currentUser||!usersData[currentUser]){['my-uploads-grid','my-liked-songs-grid','my-playlists-grid'].forEach(id=>document.getElementById(id).innerHTML='<p>Login for this section.</p>');return;}renderMyUploads();const lSIs=usersData[currentUser]?.likedSongs||[];const mLs=lSIs.map(id=>songs.find(s=>s.id===id)).filter(Boolean).filter(s=>isAdmin||!s.isPrivate||s.uploader===currentUser);renderSongGrid(mLs,'my-liked-songs-grid','No liked songs.');renderMyPlaylistsGrid();}
     
-    // --- Library Sections ---
-    function renderLibrarySections() {
-        if (!currentUser) {
-            document.getElementById('my-uploads-grid').innerHTML = '<p>Set a user to see your uploads.</p>';
-            document.getElementById('my-liked-songs-grid').innerHTML = '<p>Set a user to see your liked songs.</p>';
-            document.getElementById('my-playlists-grid').innerHTML = '<p>Set a user to see your playlists.</p>';
-            return;
+    function sortSongs(songArray, sortBy) {
+        const sorted = [...songArray]; // Create a new array to avoid mutating the original
+        switch (sortBy) {
+            case 'name_asc': sorted.sort((a, b) => a.name.localeCompare(b.name)); break;
+            case 'name_desc': sorted.sort((a, b) => b.name.localeCompare(a.name)); break;
+            case 'date_asc': sorted.sort((a, b) => a.uploadTimestamp - b.uploadTimestamp); break;
+            case 'date_desc': default: sorted.sort((a, b) => b.uploadTimestamp - a.uploadTimestamp); break;
         }
-        const myUploads = songs.filter(song => song.uploader === currentUser); // Shows private ones too, if they uploaded
+        return sorted;
+    }
+    function renderMyUploads() {
+        let myUploads = songs.filter(song => song.uploader === currentUser);
+        const sortBy = sortMyUploadsSelect.value;
+        myUploads = sortSongs(myUploads, sortBy);
         renderSongGrid(myUploads, 'my-uploads-grid', 'You haven\'t uploaded any songs.');
-
-        const likedSongIds = usersData[currentUser]?.likedSongs || [];
-        const myLikedSongs = likedSongIds.map(id => songs.find(s => s.id === id)).filter(Boolean)
-                                    .filter(song => isAdmin || !song.isPrivate || song.uploader === currentUser); // Filter for visibility
-        renderSongGrid(myLikedSongs, 'my-liked-songs-grid', 'You haven\'t liked any songs yet.');
-        
-        renderMyPlaylistsGrid();
     }
-
-    // --- Music Player Logic ---
-    function playSongById(songId, playlistContext = null, playlistIndex = -1) {
-        const songToPlay = songs.find(s => s.id === songId);
-        if (!songToPlay) {
-            alert('Song not found.');
-            return;
-        }
-
-        // Check if song has a blob (uploaded in current session)
-        // This is a placeholder for the actual blob that needs to be associated.
-        // When loading from localStorage, `songBlob` is not present.
-        // We need to find the song object that might have the blob from a current session upload.
-        const songWithBlob = songs.find(s => s.id === songId && s.songBlob);
-
-        if (!songWithBlob || !songWithBlob.songBlob) {
-            alert('Song file not available for playback. It might need to be re-uploaded in the current session.');
-            // Attempt to find if any song with this ID has a blob, if multiple instances (should not happen with good IDing)
-             const anyBlob = songs.find(s => s.id === songId && s.songBlob);
-             if (!anyBlob || !anyBlob.songBlob) {
-                playerBar.style.display = 'none';
-                return;
-             }
-             // If found, try to use it (this is a bit of a hack for the single file limitation)
-             songToPlay.songBlob = anyBlob.songBlob;
-        } else {
-            songToPlay.songBlob = songWithBlob.songBlob; // Ensure the main song object gets the blob
-        }
+    if(sortMyUploadsSelect) sortMyUploadsSelect.onchange = renderMyUploads;
 
 
-        audioPlayer.src = URL.createObjectURL(songToPlay.songBlob);
-        audioPlayer.play()
-            .then(() => {
-                playerBar.style.display = 'flex';
-                playPauseButton.innerHTML = '❚❚'; // Pause symbol
-            })
-            .catch(error => {
-                console.error("Error playing song:", error);
-                alert("Could not play song. File might be corrupted or unsupported.");
-                playerBar.style.display = 'none';
-            });
-        
-        playerCover.src = songToPlay.coverUrl || 'https://via.placeholder.com/60?text=N/A';
-        playerNameEl.textContent = songToPlay.name;
-        playerArtistEl.textContent = songToPlay.artist;
-        currentPlayingSongId = songToPlay.id;
-
-        // Playlist context
-        if (playlistContext) {
-            currentPlaylist = playlistContext.map(id => songs.find(s => s.id === id)).filter(Boolean);
-            currentPlaylistIndex = playlistIndex;
-        } else {
-            // If not in a playlist, create a "playlist" of just this song
-            currentPlaylist = [songToPlay];
-            currentPlaylistIndex = 0;
-        }
-
-
-        // Increment plays (only if not already played in last few seconds to avoid quick multiple counts)
-        const now = Date.now();
-        if (!songToPlay.lastPlayedTimestamp || (now - songToPlay.lastPlayedTimestamp > 5000)) { // 5s debounce
-            songToPlay.plays = (songToPlay.plays || 0) + 1;
-            songToPlay.lastPlayedTimestamp = now;
-        }
-        
-        if (currentUser && usersData[currentUser]) {
-            let recentlyPlayed = usersData[currentUser].recentlyPlayed || [];
-            recentlyPlayed = [songToPlay.id, ...recentlyPlayed.filter(id => id !== songToPlay.id)].slice(0, 20);
-            usersData[currentUser].recentlyPlayed = recentlyPlayed;
-        }
-        
-        refreshAllViewsAndData(); // This calls saveData and re-renders
-    }
-
-    audioPlayer.onloadedmetadata = () => {
-        totalTimeEl.textContent = formatTime(audioPlayer.duration);
-        seekBar.max = audioPlayer.duration;
-    };
-    audioPlayer.ontimeupdate = () => {
-        currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
-        seekBar.value = audioPlayer.currentTime;
-    };
-    seekBar.oninput = () => {
-        audioPlayer.currentTime = seekBar.value;
-    };
-    audioPlayer.onended = () => {
-        playNextTrack();
-    };
-    audioPlayer.onplay = () => {
-        playerBar.style.display = 'flex';
-        playPauseButton.innerHTML = '❚❚'; // Pause
-    };
-    audioPlayer.onpause = () => {
-        // Don't hide bar on pause, only on explicit stop or end without repeat
-        playPauseButton.innerHTML = '▶'; // Play
-    };
-
-    playPauseButton.onclick = () => {
-        if (audioPlayer.paused) {
-            audioPlayer.play().catch(e => console.error("Play error:", e));
-        } else {
-            audioPlayer.pause();
-        }
-    };
+    function playSongById(sId,pCtx=null,pIdx=-1){const sTP=songs.find(s=>s.id===sId);if(!sTP){alert('Song not found.');return;}const sWB=songs.find(s=>s.id===sId&&s.songBlob);let pB=sWB?sWB.songBlob:null;if(!pB){const aB=songs.find(s=>s.id===sId&&s.songBlob);if(aB)pB=aB.songBlob;}if(!pB){alert('File unavailable. Re-upload in session.');playerBar.style.display='none';return;}if(!sTP.songBlob)sTP.songBlob=pB;audioPlayer.src=URL.createObjectURL(sTP.songBlob);audioPlayer.play().then(()=>{playerBar.style.display='flex';playPauseButton.innerHTML='❚❚';}).catch(e=>{console.error(e);alert("Could not play.");playerBar.style.display='none';});playerCover.src=sTP.coverUrl||`https://via.placeholder.com/60?text=${encodeURIComponent(sTP.name)}`;playerNameEl.textContent=sTP.name;playerArtistEl.textContent=sTP.artist;currentPlayingSongId=sTP.id;currentPlaylistContext=pCtx?pCtx.map(id=>songs.find(s=>s.id===id)).filter(Boolean):[sTP];currentPlaylistIndex=pCtx?pIdx:0;const n=Date.now();if(!sTP.lastPlayedTimestamp||(n-sTP.lastPlayedTimestamp>5000)){sTP.plays=(sTP.plays||0)+1;sTP.lastPlayedTimestamp=n;}if(currentUser&&usersData[currentUser]){let rP=usersData[currentUser].recentlyPlayed||[];usersData[currentUser].recentlyPlayed=[sTP.id,...rP.filter(id=>id!==sTP.id)].slice(0,20);}refreshAllViewsAndData();}
+    audioPlayer.onloadedmetadata=()=>{totalTimeEl.textContent=formatTime(audioPlayer.duration);seekBar.max=audioPlayer.duration;};audioPlayer.ontimeupdate=()=>{currentTimeEl.textContent=formatTime(audioPlayer.currentTime);seekBar.value=audioPlayer.currentTime;};seekBar.oninput=()=>{audioPlayer.currentTime=seekBar.value;};audioPlayer.onended=()=>{playNextTrack();};audioPlayer.onplay=()=>{playerBar.style.display='flex';playPauseButton.innerHTML='❚❚';};audioPlayer.onpause=()=>{playPauseButton.innerHTML='▶';};playPauseButton.onclick=()=>{if(audioPlayer.paused)audioPlayer.play().catch(e=>console.error(e));else audioPlayer.pause();};volumeBar.oninput=()=>{audioPlayer.volume=volumeBar.value;updateVolumeIcon();saveData();};volumeIcon.onclick=()=>{if(audioPlayer.volume>0){audioPlayer.dataset.lastVolume=audioPlayer.volume;audioPlayer.volume=0;}else{audioPlayer.volume=audioPlayer.dataset.lastVolume||1;}volumeBar.value=audioPlayer.volume;updateVolumeIcon();saveData();};
+    function updateVolumeIcon(){const mI='<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>',lVI='<path d="M3 9v6h4l5 5V4L7 9H3zm7.5 3c0-.82-.31-1.57-.82-2.12L12 7.54v8.92l1.68-1.68c.51-.55.82-1.3.82-2.12z"/>',hVI='<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';volumeIcon.innerHTML=audioPlayer.volume===0?mI:(audioPlayer.volume<0.5?lVI:hVI);}
+    function formatTime(s){const m=Math.floor(s/60),sc=Math.floor(s%60).toString().padStart(2,'0');return `${m}:${sc}`;}
+    nextTrackButton.onclick=()=>playNextTrack();prevTrackButton.onclick=()=>playPreviousTrack();repeatButton.onclick=()=>{if(repeatMode==='none'){repeatMode='all';repeatButton.style.color='var(--accent-color)';repeatButton.textContent='🔁';}else if(repeatMode==='all'){repeatMode='one';repeatButton.textContent='🔂';}else{repeatMode='none';repeatButton.style.color='var(--text-secondary)';repeatButton.textContent='🔁';}};shuffleButton.onclick=()=>{isShuffle=!isShuffle;shuffleButton.style.color=isShuffle?'var(--accent-color)':'var(--text-secondary)';};
+    function playNextTrack(){if(repeatMode==='one'&&currentPlayingSongId){audioPlayer.currentTime=0;audioPlayer.play();return;}if(songQueue.length>0){const nSIQ=songQueue.shift();updateQueueCount();saveData();const sTP=songs.find(s=>s.id===nSIQ);if(sTP){playSongById(sTP.id,null);if(document.getElementById('queue-view').classList.contains('active'))renderQueueView();return;}}if(!currentPlaylistContext||currentPlaylistContext.length===0)return;let nI=isShuffle?Math.floor(Math.random()*currentPlaylistContext.length):currentPlaylistIndex+1;if(nI>=currentPlaylistContext.length){if(repeatMode==='all')nI=0;else{playerBar.style.display='none';audioPlayer.pause();audioPlayer.currentTime=0;currentPlayingSongId=null;playerCover.src='#';playerNameEl.textContent='Song';playerArtistEl.textContent='Artist';return;}}const nS=currentPlaylistContext[nI];if(nS)playSongById(nS.id,currentPlaylistContext.map(s=>s.id),nI);}
+    function playPreviousTrack(){if(audioPlayer.currentTime>3&&currentPlayingSongId){audioPlayer.currentTime=0;return;}if(!currentPlaylistContext||currentPlaylistContext.length===0)return;let pI=isShuffle?Math.floor(Math.random()*currentPlaylistContext.length):currentPlaylistIndex-1;if(pI<0){if(repeatMode==='all')pI=currentPlaylistContext.length-1;else{if(currentPlayingSongId)audioPlayer.currentTime=0;return;}}const pS=currentPlaylistContext[pI];if(pS)playSongById(pS.id,currentPlaylistContext.map(s=>s.id),pI);}
     
-    volumeBar.oninput = () => {
-        audioPlayer.volume = volumeBar.value;
-        localStorage.setItem('freetify_volume', audioPlayer.volume);
-        updateVolumeIcon();
-    };
-
-    function updateVolumeIcon() {
-        if (audioPlayer.volume === 0) {
-            volumeIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>'; // Muted
-        } else if (audioPlayer.volume < 0.5) {
-            volumeIcon.innerHTML = '<path d="M7 9v6h4l5 5V4L11 9H7zm7.5-1c0-.82-.31-1.57-.82-2.12L12 7.54v8.92l1.68-1.68c.51-.55.82-1.3.82-2.12z"/>'; // Low Volume
-        } else {
-            volumeIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>'; // Normal/High Volume
-        }
-    }
-
-    function formatTime(seconds) {
-        const minutes = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
-        return `${minutes}:${secs}`;
-    }
-
-    // --- Track Navigation (Next/Prev, Shuffle, Repeat) ---
-    nextTrackButton.onclick = () => playNextTrack();
-    prevTrackButton.onclick = () => playPreviousTrack();
-
-    repeatButton.onclick = () => {
-        if (repeatMode === 'none') {
-            repeatMode = 'all';
-            repeatButton.style.color = 'var(--accent-color)';
-            repeatButton.innerHTML = '🔁¹'; // Indicate repeat one or all somehow
-        } else if (repeatMode === 'all') {
-            repeatMode = 'one';
-            repeatButton.innerHTML = '🔂'; // Repeat one icon
-        } else { // repeatMode === 'one'
-            repeatMode = 'none';
-            repeatButton.style.color = 'var(--text-secondary)';
-            repeatButton.innerHTML = '🔁';
-        }
-    };
-
-    shuffleButton.onclick = () => {
-        isShuffle = !isShuffle;
-        shuffleButton.style.color = isShuffle ? 'var(--accent-color)' : 'var(--text-secondary)';
-        // If shuffle is turned on, and we're in a playlist, we might want to shuffle the *rest* of the playlist
-        // For now, it will apply to the *next* track selection.
-    };
-
-    function playNextTrack() {
-        if (repeatMode === 'one') {
-            audioPlayer.currentTime = 0;
-            audioPlayer.play();
-            return;
-        }
-
-        if (!currentPlaylist || currentPlaylist.length === 0) return;
-        
-        let nextIndex;
-        if (isShuffle) {
-            nextIndex = Math.floor(Math.random() * currentPlaylist.length);
-        } else {
-            nextIndex = currentPlaylistIndex + 1;
-        }
-
-        if (nextIndex >= currentPlaylist.length) {
-            if (repeatMode === 'all') {
-                nextIndex = 0;
-            } else {
-                // End of playlist, no repeat all
-                playerBar.style.display = 'none'; // Or stop, or play first song etc.
-                audioPlayer.pause();
-                audioPlayer.currentTime = 0;
-                currentPlayingSongId = null;
-                // Clear player display
-                playerCover.src = '#';
-                playerNameEl.textContent = 'Song Name';
-                playerArtistEl.textContent = 'Artist';
-                return;
-            }
-        }
-        
-        const nextSong = currentPlaylist[nextIndex];
-        if (nextSong) {
-            playSongById(nextSong.id, currentPlaylist.map(s=>s.id), nextIndex);
-        }
-    }
-
-    function playPreviousTrack() {
-        // If played for more than 3 seconds, restart current song, otherwise go to previous
-        if (audioPlayer.currentTime > 3) {
-            audioPlayer.currentTime = 0;
-            return;
-        }
-
-        if (!currentPlaylist || currentPlaylist.length === 0) return;
-
-        let prevIndex;
-        if (isShuffle) { // Shuffle logic for prev might be complex, usually just goes to a random previous
-            prevIndex = Math.floor(Math.random() * currentPlaylist.length); 
-        } else {
-            prevIndex = currentPlaylistIndex - 1;
-        }
-
-        if (prevIndex < 0) {
-            if (repeatMode === 'all') {
-                prevIndex = currentPlaylist.length - 1; // Loop to end
-            } else {
-                // Beginning of playlist, no repeat all
-                audioPlayer.currentTime = 0; // Just restart current if at beginning
-                return;
-            }
-        }
-        
-        const prevSong = currentPlaylist[prevIndex];
-        if (prevSong) {
-            playSongById(prevSong.id, currentPlaylist.map(s=>s.id), prevIndex);
-        }
-    }
-
-
-    // --- Upload Logic ---
-    coverFileInput.onchange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                coverPreview.src = e.target.result;
-                coverPreview.style.display = 'block';
-            }
-            reader.readAsDataURL(file);
-        } else {
-            coverPreview.src = '#';
-            coverPreview.style.display = 'none';
-        }
-    };
-
-    uploadForm.onsubmit = async (event) => {
-        event.preventDefault();
-        if (!currentUser) {
-            alert('Please set a user before uploading.');
-            return;
-        }
-
-        const songFile = songFileInput.files[0];
-        const coverFile = document.getElementById('coverFile').files[0];
-        const songName = document.getElementById('songName').value;
-        const artistName = document.getElementById('artistName').value;
-        const category = document.getElementById('category').value;
-        const albumName = document.getElementById('albumName').value || 'No Album';
-
-        songFileError.textContent = '';
-
-        if (!songFile) { songFileError.textContent = 'Song file is required.'; return; }
-        if (!['audio/mpeg', 'audio/mp3', 'audio/ogg'].includes(songFile.type)) {
-            songFileError.textContent = 'Invalid song file type. MP3/OGG only.'; return;
-        }
-        if (!coverFile) { alert('Cover image is required.'); return; }
-        if (!['image/png', 'image/jpeg', 'image/jpg'].includes(coverFile.type)) {
-            alert('Invalid cover file type. PNG/JPG only.'); return;
-        }
-
-        const tempAudio = document.createElement('audio');
-        const tempAudioSrc = URL.createObjectURL(songFile); // Keep this reference
-        tempAudio.src = tempAudioSrc;
-
-        tempAudio.onloadedmetadata = () => {
-            URL.revokeObjectURL(tempAudioSrc); // Clean up temp URL
-            if (tempAudio.duration > MAX_SONG_DURATION) {
-                songFileError.textContent = `Song is too long (${formatTime(tempAudio.duration)}). Max 10 minutes.`;
-                return;
-            }
-
-            const coverReader = new FileReader();
-            coverReader.onload = (e) => {
-                const newSong = {
-                    id: 'song_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                    name: songName,
-                    artist: artistName,
-                    album: albumName,
-                    category: category,
-                    coverUrl: e.target.result, // Data URL for cover
-                    songBlob: songFile, // Store the actual blob for current session playback
-                    duration: tempAudio.duration,
-                    uploadTimestamp: Date.now(),
-                    uploader: currentUser,
-                    plays: 0,
-                    likes: 0,
-                    comments: [],
-                    isPrivate: false // Default to public
-                };
-
-                songs.push(newSong);
-                alert('Song uploaded successfully!');
-                uploadForm.reset();
-                coverPreview.style.display = 'none';
-                refreshAllViewsAndData();
-                navigateToView('home'); // Or library
-            };
-            coverReader.readAsDataURL(coverFile);
-        };
-        tempAudio.onerror = () => {
-            URL.revokeObjectURL(tempAudioSrc);
-            songFileError.textContent = 'Could not read song file to check duration.';
-        };
-    };
-
-    // --- Like/Unlike Song ---
-    function toggleLike(songId) {
-        if (!currentUser || !usersData[currentUser]) {
-            alert('Please set a user to like songs.');
-            return;
-        }
-        const song = songs.find(s => s.id === songId);
-        if (!song) return;
-
-        const userLikes = usersData[currentUser].likedSongs || [];
-        const songCard = document.querySelector(`.song-card[data-song-id="${songId}"]`);
-        const likeButton = songCard ? songCard.querySelector('.like-button-card') : null;
-
-        if (userLikes.includes(songId)) { // Unlike
-            usersData[currentUser].likedSongs = userLikes.filter(id => id !== songId);
-            song.likes = Math.max(0, (song.likes || 0) - 1);
-            if (likeButton) {
-                likeButton.classList.remove('liked');
-                likeButton.innerHTML = '&#x2661;';
-            }
-        } else { // Like
-            usersData[currentUser].likedSongs.push(songId);
-            song.likes = (song.likes || 0) + 1;
-             if (likeButton) {
-                likeButton.classList.add('liked');
-                likeButton.innerHTML = '&#x2665;';
-            }
-        }
-        
-        refreshAllViewsAndData();
-    }
-
-    // --- Search Logic ---
-    filterTypeSelect.onchange = () => {
-        const requiresValue = ['uploader', 'artist', 'album', 'category'].includes(filterTypeSelect.value);
-        filterValueInput.style.display = requiresValue ? 'inline-block' : 'none';
-        if (requiresValue) filterValueInput.placeholder = `Enter ${filterTypeSelect.value} name`;
-    };
-
-    searchButton.onclick = () => {
-        const searchTerm = searchInput.value.toLowerCase();
-        const filterType = filterTypeSelect.value;
-        const filterValue = filterValueInput.value.toLowerCase();
-        let results = [...songs];
-
-        // Filter for visibility first
-        results = results.filter(song => isAdmin || !song.isPrivate || song.uploader === currentUser);
-
-        if (searchTerm) {
-            results = results.filter(song => 
-                song.name.toLowerCase().includes(searchTerm) ||
-                song.artist.toLowerCase().includes(searchTerm) ||
-                (song.album && song.album.toLowerCase().includes(searchTerm)) ||
-                (song.category && song.category.toLowerCase().includes(searchTerm))
-            );
-        }
-
-        switch (filterType) {
-            case 'recent':
-                results.sort((a, b) => b.uploadTimestamp - a.uploadTimestamp);
-                break;
-            case 'uploader':
-                if (filterValue) results = results.filter(song => song.uploader && song.uploader.toLowerCase().includes(filterValue));
-                break;
-            case 'artist':
-                if (filterValue) results = results.filter(song => song.artist.toLowerCase().includes(filterValue));
-                break;
-            case 'album':
-                if (filterValue) results = results.filter(song => song.album && song.album.toLowerCase().includes(filterValue));
-                break;
-            case 'category':
-                 if (filterValue) results = results.filter(song => song.category && song.category.toLowerCase().includes(filterValue));
-                break;
-            case 'most_played':
-                results.sort((a, b) => (b.plays || 0) - (a.plays || 0));
-                break;
-            case 'most_liked':
-                results.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-                break;
-        }
-        renderSongGrid(results, 'search-results-grid', 'No songs found matching your criteria.');
-    };
-
-    // --- Modal Management ---
-    function openModal(modalId) {
-        document.getElementById(modalId).style.display = 'flex';
-    }
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-    }
-    document.querySelectorAll('.close-button').forEach(btn => {
-        btn.onclick = () => closeModal(btn.dataset.modalId);
-    });
-    window.onclick = (event) => { // Close modal if clicking outside
-        if (event.target.classList.contains('modal')) {
-            closeModal(event.target.id);
-        }
-    };
-
-    // --- Admin Song Management (Edit, Delete, Private) ---
-    function openEditSongModal(songId) {
-        if (!isAdmin) return;
-        const song = songs.find(s => s.id === songId);
-        if (!song) return;
-
-        document.getElementById('editSongId').value = song.id;
-        document.getElementById('editSongName').value = song.name;
-        document.getElementById('editArtistName').value = song.artist;
-        document.getElementById('editAlbumName').value = song.album || '';
-        document.getElementById('editCategory').value = song.category || 'Other';
-        document.getElementById('editIsPrivate').checked = song.isPrivate || false;
-        openModal('editSongModal');
-    }
-
-    editSongForm.onsubmit = (event) => {
-        event.preventDefault();
-        if (!isAdmin) return;
-        
-        const songId = document.getElementById('editSongId').value;
-        const song = songs.find(s => s.id === songId);
-        if (!song) return;
-
-        song.name = document.getElementById('editSongName').value;
-        song.artist = document.getElementById('editArtistName').value;
-        song.album = document.getElementById('editAlbumName').value || 'No Album';
-        song.category = document.getElementById('editCategory').value;
-        song.isPrivate = document.getElementById('editIsPrivate').checked;
-        
-        refreshAllViewsAndData();
-        closeModal('editSongModal');
-        alert('Song updated.');
-    };
-
-    function deleteSong(songId) {
-        if (!isAdmin) return;
-        if (!confirm('Are you sure you want to delete this song? This action cannot be undone.')) return;
-
-        songs = songs.filter(s => s.id !== songId);
-        // Remove from user likes and playlists
-        Object.values(usersData).forEach(user => {
-            if (user.likedSongs) user.likedSongs = user.likedSongs.filter(id => id !== songId);
-            if (user.recentlyPlayed) user.recentlyPlayed = user.recentlyPlayed.filter(id => id !== songId);
-            if (user.playlists) {
-                user.playlists.forEach(p => {
-                    p.songIds = p.songIds.filter(id => id !== songId);
-                });
-            }
-        });
-        
-        refreshAllViewsAndData();
-        alert('Song deleted.');
-    }
-
-    // --- Song Detail Modal & Comments ---
-    function openSongDetailModal(songId) {
-        const song = songs.find(s => s.id === songId);
-        if (!song) return;
-
-        document.getElementById('detailCover').src = song.coverUrl || 'https://via.placeholder.com/150?text=No+Cover';
-        document.getElementById('detailName').textContent = song.name;
-        document.getElementById('detailArtist').textContent = song.artist;
-        document.getElementById('detailAlbum').textContent = `Album: ${song.album || 'N/A'}`;
-        document.getElementById('detailCategory').textContent = `Category: ${song.category || 'Other'}`;
-        document.getElementById('detailUploader').textContent = `Uploaded by: ${song.uploader || 'Unknown'}`;
-        document.getElementById('detailPlays').textContent = `Plays: ${song.plays || 0}`;
-        document.getElementById('detailLikes').textContent = `Likes: ${song.likes || 0}`;
-
-        document.getElementById('commentSongId').value = song.id;
-        renderComments(song.id);
-        openModal('songDetailModal');
-    }
-
-    function renderComments(songId) {
-        const song = songs.find(s => s.id === songId);
-        commentsList.innerHTML = '';
-        if (song && song.comments && song.comments.length > 0) {
-            song.comments.slice().reverse().forEach(comment => { // Show newest first
-                const div = document.createElement('div');
-                div.className = 'comment';
-                div.innerHTML = `
-                    <span class="comment-user">${comment.user}</span>
-                    <span class="comment-time">${new Date(comment.timestamp).toLocaleString()}</span>
-                    <p class="comment-text">${escapeHTML(comment.text)}</p>
-                `;
-                commentsList.appendChild(div);
-            });
-        } else {
-            commentsList.innerHTML = '<p>No comments yet.</p>';
-        }
-    }
-
-    commentForm.onsubmit = (event) => {
-        event.preventDefault();
-        if (!currentUser) {
-            alert('Please set a user to comment.');
-            return;
-        }
-        const songId = document.getElementById('commentSongId').value;
-        const text = document.getElementById('commentText').value.trim();
-        if (!text) return;
-
-        const song = songs.find(s => s.id === songId);
-        if (!song) return;
-
-        if (!song.comments) song.comments = [];
-        song.comments.push({
-            user: currentUser,
-            text: text,
-            timestamp: Date.now()
-        });
-
-        refreshAllViewsAndData();
-        renderComments(songId); // Re-render comments in the modal
-        document.getElementById('commentText').value = '';
-    };
-
-    function escapeHTML(str) { // Basic XSS protection for comments
-        return str.replace(/[&<>"']/g, function (match) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
-        });
-    }
-
-    // --- Playlist Management ---
-    document.getElementById('createPlaylistButton').onclick = () => {
-        if (!currentUser || !usersData[currentUser]) {
-            alert('Please set a user to create playlists.');
-            return;
-        }
-        const playlistName = document.getElementById('createPlaylistInput').value.trim();
-        if (!playlistName) {
-            alert('Playlist name cannot be empty.');
-            return;
-        }
-        if (!usersData[currentUser].playlists) usersData[currentUser].playlists = [];
-        
-        // Check if playlist name already exists for this user
-        if (usersData[currentUser].playlists.some(p => p.name === playlistName)) {
-            alert(`Playlist "${playlistName}" already exists.`);
-            return;
-        }
-
-        usersData[currentUser].playlists.push({
-            id: 'pl_' + Date.now() + '_' + Math.random().toString(36).substr(2,9),
-            name: playlistName,
-            songIds: []
-        });
-        document.getElementById('createPlaylistInput').value = '';
-        refreshAllViewsAndData();
-    };
-
-    function renderUserPlaylistsNav() {
-        const listEl = document.getElementById('user-playlists-list');
-        listEl.innerHTML = '';
-        if (currentUser && usersData[currentUser] && usersData[currentUser].playlists) {
-            usersData[currentUser].playlists.forEach(pl => {
-                const li = document.createElement('li');
-                li.textContent = pl.name;
-                li.dataset.playlistId = pl.id;
-                li.onclick = () => {
-                    navigateToView('playlist-detail');
-                    displayPlaylistDetail(pl.id);
-                };
-                listEl.appendChild(li);
-            });
-        }
-    }
-    
-    function renderMyPlaylistsGrid() {
-        const gridEl = document.getElementById('my-playlists-grid');
-        gridEl.innerHTML = '';
-        if (currentUser && usersData[currentUser] && usersData[currentUser].playlists && usersData[currentUser].playlists.length > 0) {
-            usersData[currentUser].playlists.forEach(pl => {
-                const card = document.createElement('div');
-                card.className = 'playlist-card';
-                card.innerHTML = `<h4>${escapeHTML(pl.name)}</h4><p>${pl.songIds.length} song(s)</p>`;
-                card.onclick = () => {
-                    navigateToView('playlist-detail');
-                    displayPlaylistDetail(pl.id);
-                };
-                gridEl.appendChild(card);
-            });
-        } else {
-            gridEl.innerHTML = '<p>You haven\'t created any playlists.</p>';
-        }
-    }
-
-
-    function displayPlaylistDetail(playlistId) {
+    coverFileInput.onchange=(e)=>{const f=e.target.files[0];if(f){const r=new FileReader();r.onload=(ev)=>{coverPreview.src=ev.target.result;coverPreview.style.display='block';};r.readAsDataURL(f);}else{coverPreview.src='#';coverPreview.style.display='none';}};
+    uploadForm.onsubmit=async (e)=>{e.preventDefault();if(!currentUser){alert('Login to upload.');return;}const sF=songFileInput.files[0],cF=coverFileInput.files[0],sN=songName.value,aN=artistName.value,cat=category.value,alb=albumName.value||'No Album';songFileError.textContent='';if(!sF||!cF||!sN||!aN){alert("Fill all fields.");songFileError.textContent="Missing fields.";return;}if(!['audio/mpeg','audio/mp3','audio/ogg'].includes(sF.type)){songFileError.textContent='MP3/OGG only.';return;}if(!['image/png','image/jpeg','image/jpg'].includes(cF.type)){songFileError.textContent='PNG/JPG cover only.';return;}const tA=document.createElement('audio'),tAS=URL.createObjectURL(sF);tA.src=tAS;tA.onloadedmetadata=()=>{URL.revokeObjectURL(tAS);if(tA.duration>MAX_SONG_DURATION){songFileError.textContent=`Too long(${formatTime(tA.duration)}).Max 10m.`;return;}const cR=new FileReader();cR.onload=(ev)=>{const nS={id:'song_'+Date.now()+'_'+Math.random().toString(36).substr(2,9),name:sN,artist:aN,album:alb,category:cat,coverUrl:ev.target.result,songBlob:sF,duration:tA.duration,uploadTimestamp:Date.now(),uploader:currentUser,plays:0,likes:0,comments:[],isPrivate:false};songs.push(nS);alert('Uploaded!');uploadForm.reset();coverPreview.style.display='none';songFileError.textContent='';refreshAllViewsAndData();navigateToView('library');};cR.readAsDataURL(cF);};tA.onerror=()=>{URL.revokeObjectURL(tAS);songFileError.textContent='Could not read song.';};};
+    function toggleLike(sId){if(!currentUser||!usersData[currentUser]){alert('Login to like.');return;}const s=songs.find(s=>s.id===sId);if(!s)return;usersData[currentUser].likedSongs=usersData[currentUser].likedSongs||[];const uL=usersData[currentUser].likedSongs,sCB=document.querySelector(`.song-card[data-song-id="${sId}"] .like-button-card`);if(uL.includes(sId)){usersData[currentUser].likedSongs=uL.filter(id=>id!==sId);s.likes=Math.max(0,(s.likes||0)-1);if(sCB){sCB.innerHTML='&#x2661;';sCB.classList.remove('liked');}}else{usersData[currentUser].likedSongs.push(sId);s.likes=(s.likes||0)+1;if(sCB){sCB.innerHTML='&#x2665;';sCB.classList.add('liked');}}refreshAllViewsAndData();}
+    filterTypeSelect.onchange=()=>{const rV=['uploader','artist','album','category'].includes(filterTypeSelect.value);filterValueInput.style.display=rV?'inline-block':'none';if(rV)filterValueInput.placeholder=`Enter ${filterTypeSelect.value}`;else filterValueInput.value='';};searchButton.onclick=()=>{const sT=searchInput.value.toLowerCase(),fT=filterTypeSelect.value,fV=filterValueInput.value.toLowerCase();let res=[...songs].filter(s=>isAdmin||!s.isPrivate||s.uploader===currentUser);if(sT)res=res.filter(s=>s.name.toLowerCase().includes(sT)||s.artist.toLowerCase().includes(sT)||(s.album&&s.album.toLowerCase().includes(sT))||(s.category&&s.category.toLowerCase().includes(sT)));switch(fT){case 'recent':res.sort((a,b)=>b.uploadTimestamp-a.uploadTimestamp);break;case 'uploader':if(fV)res=res.filter(s=>s.uploader&&s.uploader.toLowerCase().includes(fV));break;case 'artist':if(fV)res=res.filter(s=>s.artist.toLowerCase().includes(fV));break;case 'album':if(fV)res=res.filter(s=>s.album&&s.album.toLowerCase().includes(fV));break;case 'category':if(fV)res=res.filter(s=>s.category&&s.category.toLowerCase().includes(fV));break;case 'most_played':res.sort((a,b)=>(b.plays||0)-(a.plays||0));break;case 'most_liked':res.sort((a,b)=>(b.likes||0)-(a.likes||0));break;}renderSongGrid(res,'search-results-grid','No songs match.');};
+    function openModal(mId){document.getElementById(mId).style.display='flex';} function closeModal(mId){document.getElementById(mId).style.display='none';} document.querySelectorAll('.close-button').forEach(b=>b.onclick=()=>closeModal(b.dataset.modalId)); window.onclick=(e)=>{if(e.target.classList.contains('modal'))closeModal(e.target.id);};
+    function openEditSongModal(sId){if(!isAdmin)return;const s=songs.find(s=>s.id===sId);if(!s)return;document.getElementById('editSongId').value=s.id;document.getElementById('editSongName').value=s.name;document.getElementById('editArtistName').value=s.artist;document.getElementById('editAlbumName').value=s.album||'';document.getElementById('editCategory').value=s.category||'Other';document.getElementById('editIsPrivate').checked=s.isPrivate||false;openModal('editSongModal');}
+    editSongForm.onsubmit=(e)=>{e.preventDefault();if(!isAdmin)return;const sId=document.getElementById('editSongId').value,s=songs.find(s=>s.id===sId);if(!s)return;s.name=document.getElementById('editSongName').value;s.artist=document.getElementById('editArtistName').value;s.album=document.getElementById('editAlbumName').value||'No Album';s.category=document.getElementById('editCategory').value;s.isPrivate=document.getElementById('editIsPrivate').checked;refreshAllViewsAndData();closeModal('editSongModal');alert('Song updated.');};
+    function deleteSong(sId){if(!isAdmin||!confirm('Delete song? Cannot undo.'))return;songs=songs.filter(s=>s.id!==sId);Object.values(usersData).forEach(u=>{if(u.likedSongs)u.likedSongs=u.likedSongs.filter(id=>id!==sId);if(u.recentlyPlayed)u.recentlyPlayed=u.recentlyPlayed.filter(id=>id!==sId);if(u.playlists)u.playlists.forEach(p=>{p.songIds=p.songIds.filter(id=>id!==sId);});});if(currentPlayingSongId === sId){playerBar.style.display='none';audioPlayer.pause();audioPlayer.src='';currentPlayingSongId=null;}songQueue=songQueue.filter(id=>id!==sId);updateQueueCount();refreshAllViewsAndData();alert('Song deleted.');}
+    function openSongDetailModal(sId){const s=songs.find(s=>s.id===sId);if(!s)return;document.getElementById('detailCover').src=s.coverUrl||`https://via.placeholder.com/160?text=${encodeURIComponent(s.name)}`;document.getElementById('detailName').textContent=s.name;document.getElementById('detailArtist').textContent=s.artist;document.getElementById('detailAlbum').textContent=`Album: ${s.album||'N/A'}`;document.getElementById('detailCategory').textContent=`Category: ${s.category||'Other'}`;document.getElementById('detailDuration').textContent=`Duration: ${s.duration ? formatTime(s.duration) : 'N/A'}`;document.getElementById('detailUploaded').textContent=`Uploaded: ${new Date(s.uploadTimestamp).toLocaleDateString()}`;document.getElementById('detailUploader').textContent=`By: ${s.uploader||'Unknown'}`;document.getElementById('detailPlays').textContent=`Plays: ${s.plays||0}`;document.getElementById('detailLikes').textContent=`Likes: ${s.likes||0}`;document.getElementById('commentSongId').value=s.id;renderComments(s.id);openModal('songDetailModal');}
+    function renderComments(sId){const s=songs.find(s=>s.id===sId);commentsList.innerHTML='';if(s&&s.comments&&s.comments.length>0){s.comments.slice().reverse().forEach(c=>{const d=document.createElement('div');d.className='comment';d.innerHTML=`<span class="comment-user">${escapeHTML(c.user)}</span><span class="comment-time">${new Date(c.timestamp).toLocaleString()}</span><p class="comment-text">${escapeHTML(c.text)}</p>`;commentsList.appendChild(d);});}else{commentsList.innerHTML='<p>No comments yet.</p>';}}
+    commentForm.onsubmit=(e)=>{e.preventDefault();if(!currentUser){alert('Login to comment.');return;}const sId=document.getElementById('commentSongId').value,txt=document.getElementById('commentText').value.trim();if(!txt)return;const s=songs.find(s=>s.id===sId);if(!s)return;if(!s.comments)s.comments=[];s.comments.push({user:currentUser,text:txt,timestamp:Date.now()});refreshAllViewsAndData();renderComments(sId);document.getElementById('commentText').value='';};
+    function escapeHTML(str){if(typeof str!=='string')return'';return str.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+    document.getElementById('createPlaylistButton').onclick=()=>{if(!currentUser||!usersData[currentUser]){alert('Login to create playlists.');return;}const pNI=document.getElementById('createPlaylistInput'),pN=pNI.value.trim();if(!pN){alert('Playlist name empty.');return;}if(!usersData[currentUser].playlists)usersData[currentUser].playlists=[];if(usersData[currentUser].playlists.some(p=>p.name===pN)){alert(`Playlist "${pN}" exists.`);return;}usersData[currentUser].playlists.push({id:'pl_'+Date.now()+'_'+Math.random().toString(36).substr(2,9),name:pN,songIds:[]});pNI.value='';refreshAllViewsAndData();};
+    function renderUserPlaylistsNav(){const lE=document.getElementById('user-playlists-list');lE.innerHTML='';if(currentUser&&usersData[currentUser]&&usersData[currentUser].playlists){usersData[currentUser].playlists.forEach(pl=>{const li=document.createElement('li');const nS=document.createElement('span');nS.textContent=escapeHTML(pl.name);li.appendChild(nS);li.dataset.playlistId=pl.id;li.onclick=(e)=>{if(e.target.closest('.playlist-actions'))return;navigateToView('playlist-detail');displayPlaylistDetail(pl.id);};const aD=document.createElement('div');aD.className='playlist-actions';const eB=document.createElement('button');eB.innerHTML='✎';eB.title="Edit Name";eB.onclick=(e)=>{e.stopPropagation();openEditPlaylistModal(pl.id);};const dB=document.createElement('button');dB.innerHTML='🗑️';dB.title="Delete Playlist";dB.className='delete';dB.onclick=(e)=>{e.stopPropagation();deletePlaylist(pl.id);};aD.appendChild(eB);aD.appendChild(dB);li.appendChild(aD);const cPDV=document.getElementById('playlist-detail-view');if(cPDV.classList.contains('active')&&document.getElementById('playlistDetailName').dataset.playlistId===pl.id)li.classList.add('active-playlist-nav');lE.appendChild(li);});}}
+    function openEditPlaylistModal(pId){if(!currentUser||!usersData[currentUser])return;const pl=usersData[currentUser].playlists.find(p=>p.id===pId);if(!pl)return;document.getElementById('editingPlaylistId').value=pl.id;newPlaylistNameInput.value=pl.name;openModal('editPlaylistModal');}
+    confirmEditPlaylistNameButton.onclick=()=>{const pId=document.getElementById('editingPlaylistId').value,nN=newPlaylistNameInput.value.trim();if(!nN){alert("Name cannot be empty.");return;}const pl=usersData[currentUser].playlists.find(p=>p.id===pId);if(pl){if(usersData[currentUser].playlists.some(p=>p.id!==pId&&p.name===nN)){alert(`Playlist "${nN}" already exists.`);return;}pl.name=nN;refreshAllViewsAndData();if(document.getElementById('playlist-detail-view').classList.contains('active')&&document.getElementById('playlistDetailName').dataset.playlistId===pId){document.getElementById('playlistDetailName').textContent=`Playlist: ${escapeHTML(nN)}`;}}closeModal('editPlaylistModal');};
+    function deletePlaylist(pId){if(!currentUser||!usersData[currentUser]||!confirm("Delete playlist? Cannot undo."))return;usersData[currentUser].playlists=usersData[currentUser].playlists.filter(p=>p.id!==pId);if(document.getElementById('playlist-detail-view').classList.contains('active')&&document.getElementById('playlistDetailName').dataset.playlistId===pId){navigateToView('library');}refreshAllViewsAndData();}
+    function renderMyPlaylistsGrid(){const gE=document.getElementById('my-playlists-grid');gE.innerHTML='';if(currentUser&&usersData[currentUser]&&usersData[currentUser].playlists&&usersData[currentUser].playlists.length>0){usersData[currentUser].playlists.forEach(pl=>{const c=document.createElement('div');c.className='playlist-card';const h=document.createElement('div');h.className='playlist-card-header';const t=document.createElement('h4');t.textContent=escapeHTML(pl.name);const aD=document.createElement('div');aD.className='playlist-card-actions';const eB=document.createElement('button');eB.innerHTML='✎';eB.title="Edit";eB.onclick=(e)=>{e.stopPropagation();openEditPlaylistModal(pl.id);};const dB=document.createElement('button');dB.innerHTML='🗑️';dB.title="Delete";dB.className='delete';dB.onclick=(e)=>{e.stopPropagation();deletePlaylist(pl.id);};aD.appendChild(eB);aD.appendChild(dB);h.appendChild(t);h.appendChild(aD);const pC=document.createElement('p');pC.className='song-count';pC.textContent=`${pl.songIds.length} song(s)`;c.appendChild(h);c.appendChild(pC);c.onclick=()=>{navigateToView('playlist-detail');displayPlaylistDetail(pl.id);};gE.appendChild(c);});}else{gE.innerHTML='<p>No playlists.</p>';}}
+    function displayPlaylistDetail(pId){if(!currentUser||!usersData[currentUser])return;const pl=usersData[currentUser].playlists.find(p=>p.id===pId);if(!pl){navigateToView('library');return;}document.getElementById('playlistDetailName').textContent=`Playlist: ${escapeHTML(pl.name)}`;document.getElementById('playlistDetailName').dataset.playlistId=pId;let pS=pl.songIds.map(id=>songs.find(s=>s.id===id)).filter(Boolean).filter(s=>isAdmin||!s.isPrivate||s.uploader===currentUser);const sortBy=sortPlaylistDetailSelect.value;if(sortBy!=='default')pS=sortSongs(pS,sortBy);renderSongGrid(pS,'playlist-songs-grid','Playlist empty or songs inaccessible.');renderUserPlaylistsNav();}
+    if(sortPlaylistDetailSelect) sortPlaylistDetailSelect.onchange = () => { const pId = document.getElementById('playlistDetailName').dataset.playlistId; if(pId) displayPlaylistDetail(pId); };
+    if(playlistPlayAllButton) playlistPlayAllButton.onclick = () => { const pId = document.getElementById('playlistDetailName').dataset.playlistId; if(pId) playPlaylist(pId, false); };
+    if(playlistShufflePlayButton) playlistShufflePlayButton.onclick = () => { const pId = document.getElementById('playlistDetailName').dataset.playlistId; if(pId) playPlaylist(pId, true); };
+    function playPlaylist(playlistId, shuffleThePlaylist) {
         if (!currentUser || !usersData[currentUser]) return;
         const playlist = usersData[currentUser].playlists.find(p => p.id === playlistId);
-        if (!playlist) {
-            navigateToView('library'); // Playlist not found, go back
-            return;
-        }
-        document.getElementById('playlistDetailName').textContent = `Playlist: ${escapeHTML(playlist.name)}`;
-        document.getElementById('playlistDetailName').dataset.playlistId = playlist.id; // Store for refresh
-
-        const playlistSongs = playlist.songIds.map(id => songs.find(s => s.id === id)).filter(Boolean)
-                                   .filter(song => isAdmin || !song.isPrivate || song.uploader === currentUser); // visibility
-
-        renderSongGrid(playlistSongs, 'playlist-songs-grid', 'This playlist is empty or songs are not accessible.');
-        
-        // Add ability to play all songs in this playlist
-        // Could add a "Play All" button here, which would set currentPlaylist
-    }
-    document.getElementById('backToLibraryButton').onclick = () => navigateToView('library');
-
-
-    function openAddToPlaylistModal(songId) {
-        if (!currentUser || !usersData[currentUser]) {
-            alert('Please set a user to add songs to playlists.');
-            return;
-        }
-        document.getElementById('songIdToAddToPlaylist').value = songId;
-        const selectEl = document.getElementById('playlistSelectForAdding');
-        selectEl.innerHTML = '';
-        if (usersData[currentUser].playlists && usersData[currentUser].playlists.length > 0) {
-            usersData[currentUser].playlists.forEach(pl => {
-                const option = document.createElement('option');
-                option.value = pl.id;
-                option.textContent = pl.name;
-                selectEl.appendChild(option);
-            });
-            openModal('addToPlaylistModal');
-        } else {
-            alert('You have no playlists. Create one first from the sidebar.');
+        if (!playlist || playlist.songIds.length === 0) { alert("Playlist is empty or not found."); return; }
+        let songIdsToPlay = [...playlist.songIds];
+        if (shuffleThePlaylist) songIdsToPlay.sort(() => Math.random() - 0.5);
+        const firstSongId = songIdsToPlay[0];
+        if (firstSongId) {
+            // Clear current queue and set this playlist as the context
+            songQueue = songIdsToPlay.slice(1); // Rest of the playlist goes to queue
+            updateQueueCount();
+            playSongById(firstSongId, songIdsToPlay, 0); // Play first song, context is the full (shuffled or not) playlist
         }
     }
-
-    document.getElementById('confirmAddToPlaylistButton').onclick = () => {
-        const songId = document.getElementById('songIdToAddToPlaylist').value;
-        const playlistId = document.getElementById('playlistSelectForAdding').value;
-        if (!songId || !playlistId) return;
-
-        const playlist = usersData[currentUser].playlists.find(p => p.id === playlistId);
-        if (playlist) {
-            if (!playlist.songIds.includes(songId)) {
-                playlist.songIds.push(songId);
-                refreshAllViewsAndData();
-                alert('Song added to playlist.');
-            } else {
-                alert('Song is already in this playlist.');
-            }
-        }
-        closeModal('addToPlaylistModal');
-    };
-
-
-    // --- Event Listeners Setup ---
-    function setupEventListeners() {
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                // Check if it's a sub-item, if so, its parent might also have a data-view
-                let viewTarget = e.currentTarget.dataset.view;
-                if (!viewTarget && e.currentTarget.parentElement.closest('li[data-view]')) {
-                    viewTarget = e.currentTarget.parentElement.closest('li[data-view]').dataset.view;
-                }
-                 if (viewTarget) navigateToView(viewTarget);
-            });
+    document.getElementById('backToLibraryButton').onclick=()=>{document.querySelectorAll('#user-playlists-list li.active-playlist-nav').forEach(el=>el.classList.remove('active-playlist-nav'));navigateToView('library');}
+    function openAddToPlaylistModal(sId){if(!currentUser||!usersData[currentUser]){alert('Login to add to playlists.');return;}document.getElementById('songIdToAddToPlaylist').value=sId;const sEl=document.getElementById('playlistSelectForAdding');sEl.innerHTML='';if(usersData[currentUser].playlists&&usersData[currentUser].playlists.length>0){usersData[currentUser].playlists.forEach(pl=>{const o=document.createElement('option');o.value=pl.id;o.textContent=escapeHTML(pl.name);sEl.appendChild(o);});openModal('addToPlaylistModal');}else{alert('No playlists. Create one.');}}
+    document.getElementById('confirmAddToPlaylistButton').onclick=()=>{const sId=document.getElementById('songIdToAddToPlaylist').value,pId=document.getElementById('playlistSelectForAdding').value;if(!sId||!pId)return;const pl=usersData[currentUser].playlists.find(p=>p.id===pId);if(pl){if(!pl.songIds.includes(sId)){pl.songIds.push(sId);refreshAllViewsAndData();alert('Song added.');}else{alert('Already in playlist.');}}closeModal('addToPlaylistModal');};
+    function updateQueueCount(){queueCountEl.textContent=songQueue.length;}
+    function addToQueue(sId){if(!songs.find(s=>s.id===sId))return;songQueue.push(sId);updateQueueCount();saveData();alert('Added to queue.');if(document.getElementById('queue-view').classList.contains('active'))renderQueueView();}
+    function removeFromQueue(sId,listEl){const idx=songQueue.indexOf(sId);if(idx>-1)songQueue.splice(idx,1);updateQueueCount();saveData();listEl.innerHTML='';renderQueueToList(listEl);if(listEl===mainQueueListEl){emptyQueueMessageEl.style.display=songQueue.length===0?'block':'none';}else if(listEl===queueListEl){document.getElementById('queueModalEmptyMessage').style.display=songQueue.length===0?'block':'none';}}
+    function clearQueue(fromModal=false){songQueue=[];updateQueueCount();saveData();if(document.getElementById('queue-view').classList.contains('active'))renderQueueView();if(fromModal)closeModal('queueModal');alert('Queue cleared.');}
+    function renderQueueToList(ulEl){ulEl.innerHTML='';if(songQueue.length===0)return;songQueue.forEach(sId=>{const s=songs.find(s=>s.id===sId);if(s){const li=document.createElement('li');li.innerHTML=`<div class="queued-song-info"><span class="queued-song-name">${escapeHTML(s.name)}</span> - <span class="queued-song-artist">${escapeHTML(s.artist)}</span></div><button class="remove-from-queue-btn" title="Remove">&times;</button>`;li.querySelector('.remove-from-queue-btn').onclick=()=>removeFromQueue(sId,ulEl);ulEl.appendChild(li);}}); }
+    function renderQueueView(){renderQueueToList(mainQueueListEl);emptyQueueMessageEl.style.display=songQueue.length===0?'block':'none';}
+    if(clearQueueButton)clearQueueButton.onclick=()=>clearQueue(false); if(clearQueueModalButton)clearQueueModalButton.onclick=()=>clearQueue(true);
+    // Removed openQueueModal as nav link now goes to queue view. Can add a button to open modal if needed.
+    function downloadSong(sId){const s=songs.find(s=>s.id===sId&&s.songBlob);if(s&&s.songBlob){const u=URL.createObjectURL(s.songBlob),a=document.createElement('a');a.href=u;const ext=s.songBlob.name?s.songBlob.name.split('.').pop():(s.songBlob.type.includes('ogg')?'ogg':'mp3');a.download=`${s.name} - ${s.artist}.${ext}`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}else{alert("Downloadable file not found (current session uploads only).");}}
+    document.addEventListener('keydown',(e)=>{const aE=document.activeElement;if(aE&&(aE.tagName==='INPUT'||aE.tagName==='TEXTAREA'||aE.isContentEditable))return;switch(e.code){case'Space':e.preventDefault();if(currentPlayingSongId)playPauseButton.click();break;case'ArrowRight':if(currentPlayingSongId)nextTrackButton.click();break;case'ArrowLeft':if(currentPlayingSongId)prevTrackButton.click();break;case'ArrowUp':e.preventDefault();if(audioPlayer.volume<1){audioPlayer.volume=Math.min(1,audioPlayer.volume+0.1);volumeBar.value=audioPlayer.volume;updateVolumeIcon();saveData();}break;case'ArrowDown':e.preventDefault();if(audioPlayer.volume>0){audioPlayer.volume=Math.max(0,audioPlayer.volume-0.1);volumeBar.value=audioPlayer.volume;updateVolumeIcon();saveData();}break;case'KeyM':if(currentPlayingSongId)volumeIcon.click();break;case'KeyR':if(currentPlayingSongId)repeatButton.click();break;case'KeyS':if(currentPlayingSongId)shuffleButton.click();break;}});
+    
+    // Admin Panel Logic
+    function renderAdminView() {
+        if (!isAdmin) return;
+        // Stats
+        document.getElementById('adminTotalSongs').textContent = songs.length;
+        document.getElementById('adminTotalUsers').textContent = Object.keys(usersData).length;
+        let totalPlays = 0; songs.forEach(s => totalPlays += (s.plays || 0));
+        document.getElementById('adminTotalPlays').textContent = totalPlays;
+        // User List
+        const userListBody = document.getElementById('adminUserList'); userListBody.innerHTML = '';
+        Object.keys(usersData).forEach(username => {
+            const user = usersData[username];
+            const tr = document.createElement('tr');
+            const userUploads = songs.filter(s => s.uploader === username).length;
+            tr.innerHTML = `
+                <td>${escapeHTML(username)}</td>
+                <td>${escapeHTML(user.email || 'N/A')}</td>
+                <td>${user.playlists ? user.playlists.length : 0}</td>
+                <td>${user.likedSongs ? user.likedSongs.length : 0}</td>
+                <td>${userUploads}</td>
+            `;
+            userListBody.appendChild(tr);
         });
-
-        setUserButton.addEventListener('click', setCurrentUser);
-        usernameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') setUserButton.click(); });
-        emailInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') setUserButton.click(); });
     }
 
-    // --- Run on Page Load ---
-    document.addEventListener('DOMContentLoaded', init);
+    function setupEventListeners(){navLinks.forEach(l=>{l.addEventListener('click',(e)=>{let vT=e.currentTarget.dataset.view;if(!vT&&e.currentTarget.parentElement.closest('li[data-view]'))vT=e.currentTarget.parentElement.closest('li[data-view]').dataset.view;if(vT){if(vT!=='playlist-detail')document.querySelectorAll('#user-playlists-list li.active-playlist-nav').forEach(el=>el.classList.remove('active-playlist-nav'));navigateToView(vT);}});});setUserButton.addEventListener('click',setCurrentUser);[usernameInput,emailInput,passwordInput,captchaInputEl].forEach(i=>i.addEventListener('keypress',(e)=>{if(e.key==='Enter')setUserButton.click();}));}
+    document.addEventListener('DOMContentLoaded',init);
     // --- END OF SCRIPT --- //
     </script>
 </body>
-</html> 
+</html>
